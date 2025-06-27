@@ -4,40 +4,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VaggouAPI
 {
-    public class AdressService : IAdressService
+    public class FavoriteService : IFavoriteService
     {
         private readonly Db _context;
         private readonly IMapper _mapper;
 
-        public AdressService(Db context, IMapper mapper)
+        public FavoriteService(Db context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Adress>> GetAllAsync()
+        public async Task<IEnumerable<Favorite>> GetAllAsync()
         {
-            return await _context.Adresses.ToListAsync();
+            return await _context.Favorites.ToListAsync();
         }
 
-        public async Task<Adress?> GetByIdAsync(Guid id)
+        public async Task<Favorite?> GetByIdAsync(Guid id)
         {
-            return await _context.Adresses.FindAsync(id);
+            return await _context.Favorites.FindAsync(id);
         }
 
-        public async Task<Adress> CreateAsync([FromBody] AdressDto dto)
+        public async Task<Favorite> CreateAsync([FromBody] FavoriteDto dto)
         {
-            var entity = _mapper.Map<Adress>(dto);
+            var entity = _mapper.Map<Favorite>(dto);
 
-            await _context.Adresses.AddAsync(entity);
+            await _context.Favorites.AddAsync(entity);
 
             await _context.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<Adress?> UpdateAsync([FromBody] AdressDto dto, Guid id)
+        public async Task<Favorite?> UpdateAsync([FromBody] FavoriteDto dto, Guid id)
         {
-            var entity = await _context.Adresses.FindAsync(id);
+            var entity = await _context.Favorites.FindAsync(id);
 
             if (entity == null) return null;
 
@@ -49,7 +49,7 @@ namespace VaggouAPI
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var entity = await _context.Adresses.FindAsync(id);
+            var entity = await _context.Favorites.FindAsync(id);
 
             if (entity == null) return false;
 

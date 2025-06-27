@@ -31,7 +31,7 @@ namespace VaggouAPI
         {
             var entity = _mapper.Map<TEntity>(dto);
 
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
 
             await _context.SaveChangesAsync();
             return entity;
