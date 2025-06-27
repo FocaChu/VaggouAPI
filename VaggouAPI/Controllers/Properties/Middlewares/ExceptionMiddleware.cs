@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 
-namespace VaggouAPI
+namespace VaggouAPI.Controllers.Properties.Middlewares
 {
     public class ExceptionMiddleware
     {

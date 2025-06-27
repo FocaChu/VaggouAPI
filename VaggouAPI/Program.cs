@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using VaggouAPI;
+using VaggouAPI.Controllers.Properties.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
