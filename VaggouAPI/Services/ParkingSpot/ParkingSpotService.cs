@@ -51,7 +51,7 @@ namespace VaggouAPI
             return created;
         }
 
-        public async Task<ParkingSpot?> UpdateAsync([FromBody]ParkingSpotDto dto, Guid Id)
+        public async Task<ParkingSpot?> UpdateAsync(ParkingSpotDto dto, Guid Id)
         {
             var updated = await _context.ParkingSpots
                 .Include(ps => ps.ParkingLot)

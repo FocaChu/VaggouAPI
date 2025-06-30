@@ -8,11 +8,11 @@ namespace VaggouAPI
 
         Task<Favorite?> GetByIdAsync(Guid id);
 
-        Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId)
+        Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId);
 
-        Task<Favorite> CreateAsync([FromBody] FavoriteDto dto);
+        Task<Favorite> CreateAsync(FavoriteDto dto);
 
-        Task<Favorite?> UpdateAsync([FromBody] FavoriteDto dto, Guid id);
+        Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id);
 
         Task<bool> DeleteAsync(Guid id);
     }

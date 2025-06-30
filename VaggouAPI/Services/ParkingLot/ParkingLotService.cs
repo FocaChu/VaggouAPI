@@ -17,46 +17,24 @@ namespace VaggouAPI
 
         public async Task<IEnumerable<ParkingLot>> GetAllAsync()
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
-                .ToListAsync();
+            return await IncludeAll().ToListAsync();
         }
 
         public async Task<ParkingLot?> GetByIdAsync(Guid id)
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
-                .FirstOrDefaultAsync(pl => pl.Id == id);
+            return await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id);
         }
 
         public async Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode)
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
+            return await IncludeAll()
                 .Where(pl => pl.Adress.ZipCode == zipCode)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<ParkingLot>> GetByProximityAsync(int latitude, int longitude, int raio)
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
+            return await IncludeAll()
                 .Where(
                 pl => pl.Adress.Longitude < (raio + longitude) &&
                       pl.Adress.Longitude > (longitude - raio) &&
@@ -68,36 +46,21 @@ namespace VaggouAPI
 
         public async Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId)
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
+            return await IncludeAll()
                 .Where(pl => pl.OwnerId == ownerId)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<ParkingLot>> GetWithCoverAsync()
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
+            return await IncludeAll()
                 .Where(pl => pl.ParkingSpots.Any(ps => ps.IsCovered))
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync()
         {
-            return await _context.ParkingLots
-                .Include(pl => pl.Adress)
-                .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites)
+            return await IncludeAll()
                 .Where(pl => pl.ParkingSpots.Any(ps => ps.IsPCDSpace))
                 .ToListAsync();
         }
@@ -128,7 +91,7 @@ namespace VaggouAPI
             return created;
         }
 
-        public async Task<ParkingLot> UpdateAsync([FromBody] ParkingLotDto dto, Guid id)
+        public async Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid id)
         {
             var updated = await _context.ParkingLots.FindAsync(id);
             if (updated == null) return null;
@@ -169,5 +132,16 @@ namespace VaggouAPI
             await _context.SaveChangesAsync();
             return true;
         }
+
+        private IQueryable<ParkingLot> IncludeAll()
+        {
+            return _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites);
+        }
+
     }
 }

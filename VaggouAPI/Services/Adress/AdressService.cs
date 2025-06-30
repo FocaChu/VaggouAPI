@@ -26,7 +26,7 @@ namespace VaggouAPI
             return await _context.Adresses.FindAsync(id);
         }
 
-        public async Task<Adress> CreateAsync([FromBody] AdressDto dto)
+        public async Task<Adress> CreateAsync(AdressDto dto)
         {
             var created = _mapper.Map<Adress>(dto);
 
@@ -36,7 +36,7 @@ namespace VaggouAPI
             return created;
         }
 
-        public async Task<Adress?> UpdateAsync([FromBody] AdressDto dto, Guid id)
+        public async Task<Adress?> UpdateAsync(AdressDto dto, Guid id)
         {
             var updated = await _context.Adresses.FindAsync(id);
 

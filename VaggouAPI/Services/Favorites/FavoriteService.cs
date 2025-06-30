@@ -17,22 +17,21 @@ namespace VaggouAPI
 
         public async Task<IEnumerable<Favorite>> GetAllAsync()
         {
-            return await _context.Favorites.ToListAsync();
+            return await IncludeAll().ToListAsync();
         }
 
         public async Task<Favorite?> GetByIdAsync(Guid id)
         {
-            return await _context.Favorites.FindAsync(id);
+            return await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id);
         }
 
         public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId)
         {
-            return await _context.Favorites.Include(f => f.ParkingLot)
-                .Where(f => f.ClientId == clientId)
+            return await IncludeAll().Where(f => f.ClientId == clientId)
                 .ToListAsync();
         }
 
-        public async Task<Favorite> CreateAsync([FromBody] FavoriteDto dto)
+        public async Task<Favorite> CreateAsync(FavoriteDto dto)
         {
             var created = _mapper.Map<Favorite>(dto);
 
@@ -62,7 +61,7 @@ namespace VaggouAPI
             return created;
         }
 
-        public async Task<Favorite?> UpdateAsync([FromBody] FavoriteDto dto, Guid id)
+        public async Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id)
         {
             var updated = await _context.Favorites.FindAsync(id);
 
@@ -106,6 +105,12 @@ namespace VaggouAPI
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private IQueryable<Favorite> IncludeAll()
+        {
+            return _context.Favorites
+                .Include(f => f.ParkingLot);
         }
     }
 }

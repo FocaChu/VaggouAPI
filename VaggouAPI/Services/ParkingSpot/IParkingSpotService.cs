@@ -12,7 +12,7 @@ namespace VaggouAPI
 
         Task<ParkingSpot> CreateAsync(ParkingSpotDto dto);
 
-        Task<ParkingSpot?> UpdateAsync([FromBody] ParkingSpotDto dto, Guid Id);
+        Task<ParkingSpot?> UpdateAsync(ParkingSpotDto dto, Guid Id);
 
         Task<bool> DeleteAsync(Guid id);
     }
