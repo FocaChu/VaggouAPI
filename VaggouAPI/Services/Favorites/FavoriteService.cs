@@ -31,6 +31,26 @@ namespace VaggouAPI
 
             await _context.Favorites.AddAsync(entity);
 
+            var client = await _context.Clients.FindAsync(dto.ClientId);
+
+            if(client == null)
+                throw new BusinessException("Client not found.");
+            else 
+            { 
+                entity.Client = client; 
+                entity.ClientId = client.Id;
+            }
+
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
+
+            if(parkingLot == null)
+                throw new BusinessException("ParkingLot not found.");
+            else 
+            { 
+                entity.ParkingLot = parkingLot; 
+                entity.ParkingLotId = parkingLot.Id;
+            }
+
             await _context.SaveChangesAsync();
             return entity;
         }
@@ -42,6 +62,26 @@ namespace VaggouAPI
             if (entity == null) return null;
 
             _mapper.Map(dto, entity);
+
+            var client = await _context.Clients.FindAsync(dto.ClientId);
+
+            if (client == null)
+                throw new BusinessException("Client not found.");
+            else
+            {
+                entity.Client = client;
+                entity.ClientId = client.Id;
+            }
+
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
+
+            if (parkingLot == null)
+                throw new BusinessException("ParkingLot not found.");
+            else
+            {
+                entity.ParkingLot = parkingLot;
+                entity.ParkingLotId = parkingLot.Id;
+            }
 
             await _context.SaveChangesAsync();
             return entity;
