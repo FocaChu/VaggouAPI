@@ -21,7 +21,7 @@ namespace VaggouAPI.Services
         public async Task<User> GetByIdAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null) throw new Exception("User Not Found");
+            if (user == null) throw new BusinessException("User Not Found");
 
             return user;
         }
@@ -46,7 +46,7 @@ namespace VaggouAPI.Services
         public async Task<User> UpdateAsync(Guid id, UserDto dto)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null) throw new Exception("User Not Found");
+            if (user == null) throw new BusinessException("User Not Found");
 
             user.Email = dto.Email;
             user.Password = dto.Password;
@@ -60,7 +60,7 @@ namespace VaggouAPI.Services
         public async Task<bool> DeleteAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null) throw new Exception("User Not Found");
+            if (user == null) throw new BusinessException("User Not Found");
 
             _context.Users.Remove(user);
 

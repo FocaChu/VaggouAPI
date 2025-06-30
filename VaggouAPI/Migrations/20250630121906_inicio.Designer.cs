@@ -11,8 +11,8 @@ using VaggouAPI;
 namespace VaggouAPI.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20250627134305_user_client")]
-    partial class user_client
+    [Migration("20250630121906_inicio")]
+    partial class inicio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
