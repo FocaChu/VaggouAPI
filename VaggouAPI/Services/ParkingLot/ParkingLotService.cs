@@ -1,0 +1,171 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace VaggouAPI
+{
+    public class ParkingLotService : IParkingLotService
+    {
+        private readonly Db _context;
+        private readonly IMapper _mapper;
+
+        public ParkingLotService(Db context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetAllAsync()
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .ToListAsync();
+        }
+
+        public async Task<ParkingLot?> GetByIdAsync(Guid id)
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .FirstOrDefaultAsync(pl => pl.Id == id);
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode)
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .Where(pl => pl.Adress.ZipCode == zipCode)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetByProximityAsync(int latitude, int longitude, int raio)
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .Where(
+                pl => pl.Adress.Longitude < (raio + longitude) &&
+                      pl.Adress.Longitude > (longitude - raio) &&
+                      pl.Adress.Latitude < (raio + latitude) &&
+                      pl.Adress.Latitude > (latitude - raio)
+                )
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId)
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .Where(pl => pl.OwnerId == ownerId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetWithCoverAsync()
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .Where(pl => pl.ParkingSpots.Any(ps => ps.IsCovered))
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync()
+        {
+            return await _context.ParkingLots
+                .Include(pl => pl.Adress)
+                .Include(pl => pl.Owner)
+                .Include(pl => pl.MonthlyReports)
+                .Include(pl => pl.ParkingSpots)
+                .Include(pl => pl.Favorites)
+                .Where(pl => pl.ParkingSpots.Any(ps => ps.IsPCDSpace))
+                .ToListAsync();
+        }
+
+        public async Task<ParkingLot> CreateAsync(ParkingLotDto dto)
+        {
+            var entity = _mapper.Map<ParkingLot>(dto);
+            await _context.ParkingLots.AddAsync(entity);
+
+            var adress = await _context.Adresses.FindAsync(dto.AdressId);
+            if (adress == null)
+                throw new BusinessException("Adress not found.");
+            else
+            {
+                entity.Adress = adress;
+                entity.AdressId = adress.Id;
+            }
+
+            var owner = await _context.Clients.FindAsync(dto.OwnerId);
+            if (owner == null)
+                throw new BusinessException("Owner not found.");
+            else
+            {
+                entity.Owner = owner;
+                entity.OwnerId = owner.Id;
+            }
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<ParkingLot> UpdateAsync([FromBody] ParkingLotDto dto, Guid id)
+        {
+            var entity = await _context.ParkingLots.FindAsync(id);
+            if (entity == null) return null;
+
+            _mapper.Map(dto, entity);
+
+            var adress = await _context.Adresses.FindAsync(dto.AdressId);
+            if (adress == null)
+                throw new BusinessException("Adress not found.");
+            else
+            {
+                entity.Adress = adress;
+                entity.AdressId = adress.Id;
+            }
+
+            var owner = await _context.Clients.FindAsync(dto.OwnerId);
+            if (owner == null)
+                throw new BusinessException("Owner not found.");
+            else
+            {
+                entity.Owner = owner;
+                entity.OwnerId = owner.Id;
+            }
+
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await _context.ParkingLots.FindAsync(id);
+            if (entity == null) return false;
+
+            _context.ParkingLots.Remove(entity);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+    }
+}

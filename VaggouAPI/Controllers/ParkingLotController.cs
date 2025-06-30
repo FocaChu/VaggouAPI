@@ -5,11 +5,11 @@ namespace VaggouAPI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FavoriteController : ControllerBase
+    public class ParkingLotController : ControllerBase
     {
-        private readonly IFavoriteService _service;
+        private readonly IParkingLotService _service;
 
-        public FavoriteController(IFavoriteService service)
+        public ParkingLotController(IParkingLotService service)
         {
             _service = service;
         }
@@ -25,18 +25,47 @@ namespace VaggouAPI
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _service.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
 
-        [HttpGet("client/{clientId}")]
-        public async Task<IActionResult> GetByClientId(Guid clientId)
+        [HttpGet("zip/{zipCode}")]
+        public async Task<IActionResult> GetByZipCode(string zipCode)
         {
-            var result = await _service.GetByClientIdAsync(clientId);
+            var result = await _service.GetByAdressZipCodeAsync(zipCode);
+            return Ok(result);
+        }
+
+        [HttpGet("proximity")]
+        public async Task<IActionResult> GetByProximity(int latitude, int longitude, int raio)
+        {
+            var result = await _service.GetByProximityAsync(latitude, longitude, raio);
+            return Ok(result);
+        }
+
+        [HttpGet("owner/{ownerId}")]
+        public async Task<IActionResult> GetByOwner(Guid ownerId)
+        {
+            var result = await _service.GetByOwnerIdAsync(ownerId);
+            return Ok(result);
+        }
+
+        [HttpGet("with-cover")]
+        public async Task<IActionResult> GetWithCover()
+        {
+            var result = await _service.GetWithCoverAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("with-pcd")]
+        public async Task<IActionResult> GetWithPCDSpace()
+        {
+            var result = await _service.GetWithPCDSpaceAsync();
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] FavoriteDto dto)
+        public async Task<IActionResult> Create([FromBody] ParkingLotDto dto)
         {
             try
             {
@@ -50,7 +79,7 @@ namespace VaggouAPI
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] FavoriteDto dto, Guid id)
+        public async Task<IActionResult> Update(Guid id, [FromBody] ParkingLotDto dto)
         {
             try
             {

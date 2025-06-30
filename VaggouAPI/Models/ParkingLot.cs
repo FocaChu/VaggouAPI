@@ -4,15 +4,15 @@
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public Guid AdressId { get; set; }
 
-        public Adress Adress { get; set; }
+        public Adress? Adress { get; set; }
 
         public Guid OwnerId { get; set; }
 
-        public Client Owner { get; set; }
+        public Client? Owner { get; set; }
 
         public ICollection<MonthlyReport> MonthlyReports { get; set; } = new List<MonthlyReport>();
 
