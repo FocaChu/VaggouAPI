@@ -104,16 +104,16 @@ namespace VaggouAPI
 
         public async Task<ParkingLot> CreateAsync(ParkingLotDto dto)
         {
-            var entity = _mapper.Map<ParkingLot>(dto);
-            await _context.ParkingLots.AddAsync(entity);
+            var created = _mapper.Map<ParkingLot>(dto);
+            await _context.ParkingLots.AddAsync(created);
 
             var adress = await _context.Adresses.FindAsync(dto.AdressId);
             if (adress == null)
                 throw new BusinessException("Adress not found.");
             else
             {
-                entity.Adress = adress;
-                entity.AdressId = adress.Id;
+                created.Adress = adress;
+                created.AdressId = adress.Id;
             }
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId);
@@ -121,27 +121,27 @@ namespace VaggouAPI
                 throw new BusinessException("Owner not found.");
             else
             {
-                entity.Owner = owner;
-                entity.OwnerId = owner.Id;
+                created.Owner = owner;
+                created.OwnerId = owner.Id;
             }
             await _context.SaveChangesAsync();
-            return entity;
+            return created;
         }
 
         public async Task<ParkingLot> UpdateAsync([FromBody] ParkingLotDto dto, Guid id)
         {
-            var entity = await _context.ParkingLots.FindAsync(id);
-            if (entity == null) return null;
+            var updated = await _context.ParkingLots.FindAsync(id);
+            if (updated == null) return null;
 
-            _mapper.Map(dto, entity);
+            _mapper.Map(dto, updated);
 
             var adress = await _context.Adresses.FindAsync(dto.AdressId);
             if (adress == null)
                 throw new BusinessException("Adress not found.");
             else
             {
-                entity.Adress = adress;
-                entity.AdressId = adress.Id;
+                updated.Adress = adress;
+                updated.AdressId = adress.Id;
             }
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId);
@@ -149,12 +149,14 @@ namespace VaggouAPI
                 throw new BusinessException("Owner not found.");
             else
             {
-                entity.Owner = owner;
-                entity.OwnerId = owner.Id;
+                updated.Owner = owner;
+                updated.OwnerId = owner.Id;
             }
 
+
+            _context.ParkingLots.Update(updated);
             await _context.SaveChangesAsync();
-            return entity;
+            return updated;
         }
 
         public async Task<bool> DeleteAsync(Guid id)

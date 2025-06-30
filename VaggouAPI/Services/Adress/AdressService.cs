@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace VaggouAPI
 {
@@ -27,24 +28,25 @@ namespace VaggouAPI
 
         public async Task<Adress> CreateAsync([FromBody] AdressDto dto)
         {
-            var entity = _mapper.Map<Adress>(dto);
+            var created = _mapper.Map<Adress>(dto);
 
-            await _context.Adresses.AddAsync(entity);
+            await _context.Adresses.AddAsync(created);
 
             await _context.SaveChangesAsync();
-            return entity;
+            return created;
         }
 
         public async Task<Adress?> UpdateAsync([FromBody] AdressDto dto, Guid id)
         {
-            var entity = await _context.Adresses.FindAsync(id);
+            var updated = await _context.Adresses.FindAsync(id);
 
-            if (entity == null) return null;
+            if (updated == null) return null;
 
-            _mapper.Map(dto, entity);
+            _mapper.Map(dto, updated);
 
+            _context.Adresses.Update(updated);
             await _context.SaveChangesAsync();
-            return entity;
+            return updated;
         }
 
         public async Task<bool> DeleteAsync(Guid id)

@@ -34,18 +34,16 @@ namespace VaggouAPI
 
         public async Task<Favorite> CreateAsync([FromBody] FavoriteDto dto)
         {
-            var entity = _mapper.Map<Favorite>(dto);
-
-            await _context.Favorites.AddAsync(entity);
+            var created = _mapper.Map<Favorite>(dto);
 
             var client = await _context.Clients.FindAsync(dto.ClientId);
 
             if(client == null)
                 throw new BusinessException("Client not found.");
             else 
-            { 
-                entity.Client = client; 
-                entity.ClientId = client.Id;
+            {
+                created.Client = client;
+                created.ClientId = client.Id;
             }
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
@@ -53,22 +51,24 @@ namespace VaggouAPI
             if(parkingLot == null)
                 throw new BusinessException("ParkingLot not found.");
             else 
-            { 
-                entity.ParkingLot = parkingLot; 
-                entity.ParkingLotId = parkingLot.Id;
+            {
+                created.ParkingLot = parkingLot;
+                created.ParkingLotId = parkingLot.Id;
             }
 
+            await _context.Favorites.AddAsync(created);
+
             await _context.SaveChangesAsync();
-            return entity;
+            return created;
         }
 
         public async Task<Favorite?> UpdateAsync([FromBody] FavoriteDto dto, Guid id)
         {
-            var entity = await _context.Favorites.FindAsync(id);
+            var updated = await _context.Favorites.FindAsync(id);
 
-            if (entity == null) return null;
+            if (updated == null) return null;
 
-            _mapper.Map(dto, entity);
+            _mapper.Map(dto, updated);
 
             var client = await _context.Clients.FindAsync(dto.ClientId);
 
@@ -76,8 +76,8 @@ namespace VaggouAPI
                 throw new BusinessException("Client not found.");
             else
             {
-                entity.Client = client;
-                entity.ClientId = client.Id;
+                updated.Client = client;
+                updated.ClientId = client.Id;
             }
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
@@ -86,19 +86,21 @@ namespace VaggouAPI
                 throw new BusinessException("ParkingLot not found.");
             else
             {
-                entity.ParkingLot = parkingLot;
-                entity.ParkingLotId = parkingLot.Id;
+                updated.ParkingLot = parkingLot;
+                updated.ParkingLotId = parkingLot.Id;
             }
 
+            _context.Favorites.Update(updated);
             await _context.SaveChangesAsync();
-            return entity;
+            return updated;
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _context.Favorites.FindAsync(id);
 
-            if (entity == null) return false;
+            if (entity == null) 
+                return false;
 
             _context.Remove(entity);
 

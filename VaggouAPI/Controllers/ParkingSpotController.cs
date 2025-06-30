@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace VaggouAPI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FavoriteController : ControllerBase
+    public class ParkingSpotController : ControllerBase
     {
-        private readonly IFavoriteService _service;
-        private readonly ILogger<FavoriteController> _logger;
+        private readonly IParkingSpotService _service;
+        private readonly ILogger<ParkingSpotController> _logger;
 
-        public FavoriteController(IFavoriteService service, ILogger<FavoriteController> logger)
+        public ParkingSpotController(IParkingSpotService service, ILogger<ParkingSpotController> logger)
         {
             _service = service;
             _logger = logger;
@@ -18,7 +19,7 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Solicitada listagem de todos os estacionamentos favoritados.");
+            _logger.LogInformation("Solicitada listagem de todos as vagas.");
             var result = await _service.GetAllAsync();
             return Ok(result);
         }
@@ -26,71 +27,77 @@ namespace VaggouAPI
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando estacionamento favoritado com ID: {Id}", id);
+            _logger.LogInformation("Buscando vaga com ID: {Id}", id);
             var result = await _service.GetByIdAsync(id);
             if (result == null)
             {
-                _logger.LogWarning("Estacionamento favoritado com ID {Id} não encontrado.", id);
+                _logger.LogWarning("Vaga com ID {Id} não encontrado.", id);
                 return NotFound();
             }
 
             return Ok(result);
         }
 
-        [HttpGet("client/{clientId}")]
-        public async Task<IActionResult> GetByClientId(Guid clientId)
+        [HttpGet("parkingLot/{id}")]
+        public async Task<IActionResult> GetByParkingLotId(Guid id)
         {
-            _logger.LogInformation("Buscando favoritos do cliente ID: {ClientId}", clientId);
-            var result = await _service.GetByClientIdAsync(clientId);
+            _logger.LogInformation("Buscando vagas em estacionamento com ID: {Id}", id);
+            var result = await _service.GetByParkingLotIdAsync(id);
+            if (result == null)
+            {
+                _logger.LogWarning("Estacionamento com ID {Id} não encontrado.", id);
+                return NotFound();
+            }
+
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] FavoriteDto dto)
+        public async Task<IActionResult> Create([FromBody] ParkingSpotDto dto)
         {
             try
             {
-                _logger.LogInformation("Tentando adicionar estacionamento aos favoritos. ClientId: {ClientId}, ParkingLotId: {ParkingLotId}", dto.ClientId, dto.ParkingLotId);
+                _logger.LogInformation("Tentando adicionar vaga. ParkingLotId: {ParkingLotId}", dto.ParkingLotId);
                 var created = await _service.CreateAsync(dto);
                 _logger.LogInformation("Favorito criado com sucesso. ID: {Id}", created.Id);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (BusinessException ex)
             {
-                _logger.LogWarning("Erro ao criar favorito: {Mensagem}", ex.Message);
+                _logger.LogWarning("Erro ao criar vaga: {Mensagem}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao criar favorito.");
+                _logger.LogError(ex, "Erro inesperado ao criar vaga.");
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] FavoriteDto dto, Guid id)
+        public async Task<IActionResult> Update([FromBody] ParkingSpotDto dto, Guid id)
         {
             try
             {
-                _logger.LogInformation("Tentando atualizar favorito ID: {Id}", id);
+                _logger.LogInformation("Tentando atualizar vaga com ID: {Id}", id);
                 var updated = await _service.UpdateAsync(dto, id);
                 if (updated == null)
                 {
-                    _logger.LogWarning("Favorito ID {Id} não encontrado para atualização.", id);
+                    _logger.LogWarning("Vaga com ID {Id} não encontrada para atualização.", id);
                     return NotFound();
                 }
 
-                _logger.LogInformation("Favorito atualizado com sucesso. ID: {Id}", id);
+                _logger.LogInformation("Vaga atualizada com sucesso. ID: {Id}", id);
                 return Ok(updated);
             }
             catch (BusinessException ex)
             {
-                _logger.LogWarning("Erro ao atualizar favorito: {Mensagem}", ex.Message);
+                _logger.LogWarning("Erro ao atualizar vaga: {Mensagem}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao atualizar favorito.");
+                _logger.LogError(ex, "Erro inesperado ao atualizar vaga.");
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
@@ -98,15 +105,15 @@ namespace VaggouAPI
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Tentando deletar favorito ID: {Id}", id);
+            _logger.LogInformation("Tentando deletar vaga com ID: {Id}", id);
             var success = await _service.DeleteAsync(id);
             if (!success)
             {
-                _logger.LogWarning("Favorito ID {Id} não encontrado para deleção.", id);
+                _logger.LogWarning("Vaga com ID {Id} não encontrada para deleção.", id);
                 return NotFound();
             }
 
-            _logger.LogInformation("Favorito ID {Id} deletado com sucesso.", id);
+            _logger.LogInformation("Vaga com ID {Id} deletada com sucesso.", id);
             return NoContent();
         }
     }
