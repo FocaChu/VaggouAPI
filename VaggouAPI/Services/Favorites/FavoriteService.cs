@@ -25,6 +25,13 @@ namespace VaggouAPI
             return await _context.Favorites.FindAsync(id);
         }
 
+        public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId)
+        {
+            return await _context.Favorites.Include(f => f.ParkingLot)
+                .Where(f => f.ClientId == clientId)
+                .ToListAsync();
+        }
+
         public async Task<Favorite> CreateAsync([FromBody] FavoriteDto dto)
         {
             var entity = _mapper.Map<Favorite>(dto);

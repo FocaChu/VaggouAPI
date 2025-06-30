@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(ITestService<,>), typeof(TestService<,>));
+builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
