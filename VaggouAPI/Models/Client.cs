@@ -4,7 +4,17 @@
     {
         public Guid Id { get; set; }
 
-        public User User { get; set; }
+        public string FullName { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+
+        public string Phone { get; set; } = string.Empty;
+
+        public string CPF { get; set; } = string.Empty;
+
+        public Guid UserId { get; set; }
+
+        public User? User { get; set; }
 
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 

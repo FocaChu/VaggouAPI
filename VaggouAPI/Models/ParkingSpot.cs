@@ -10,6 +10,8 @@
 
         public Size Size { get; set; }
 
+        public Guid ParkingLotId { get; set; }
+
         public ParkingLot ParkingLot { get; set; }
 
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

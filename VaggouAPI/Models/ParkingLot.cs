@@ -6,7 +6,11 @@
 
         public string Name { get; set; }
 
-        public Adress Address { get; set; }
+        public Guid AdressId { get; set; }
+
+        public Adress Adress { get; set; }
+
+        public Guid OwnerId { get; set; }
 
         public Client Owner { get; set; }
 

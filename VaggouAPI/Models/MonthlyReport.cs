@@ -16,6 +16,8 @@
 
         public DateTime GeneretadAt { get; set; } = DateTime.Now;
 
+        public Guid ParkingLotId { get; set; }
+
         public ParkingLot ParkingLot { get; set; }
     }
 }
