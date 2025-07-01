@@ -16,7 +16,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(ITestService<,>), typeof(TestService<,>));
+builder.Services.AddScoped(typeof(IAdressService), typeof(AdressService));
 builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
+builder.Services.AddScoped(typeof(IParkingLotService), typeof(ParkingLotService));
+builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
