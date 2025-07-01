@@ -10,7 +10,7 @@ namespace VaggouAPI
 
         Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode);
 
-        Task<IEnumerable<ParkingLot>> GetByProximityAsync(int latitude, int longitude, int raio);
+        Task<IEnumerable<ParkingLot>> GetByProximityAsync(double latitude, double longitude, double raioKm);
 
         Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId);
 

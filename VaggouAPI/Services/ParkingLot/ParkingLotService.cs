@@ -24,14 +24,17 @@ namespace VaggouAPI
         public async Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode) =>
             await IncludeAll().Where(pl => pl.Adress.ZipCode == zipCode).ToListAsync();
 
-        public async Task<IEnumerable<ParkingLot>> GetByProximityAsync(int latitude, int longitude, int raio) =>
-            await IncludeAll()
+        public async Task<IEnumerable<ParkingLot>> GetByProximityAsync(double latitude, double longitude, double raioKm)
+        {
+            return await IncludeAll()
                 .Where(pl =>
-                    pl.Adress.Longitude < (raio + longitude) &&
-                    pl.Adress.Longitude > (longitude - raio) &&
-                    pl.Adress.Latitude < (raio + latitude) &&
-                    pl.Adress.Latitude > (latitude - raio))
+                    Math.Sqrt(
+                        Math.Pow(pl.Adress.Latitude - latitude, 2) +
+                        Math.Pow(pl.Adress.Longitude - longitude, 2)
+                    ) <= raioKm)
                 .ToListAsync();
+        }
+
 
         public async Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId) =>
             await IncludeAll().Where(pl => pl.OwnerId == ownerId).ToListAsync();

@@ -37,7 +37,8 @@ namespace VaggouAPI
         }
 
         [HttpGet("proximity")]
-        public async Task<IActionResult> GetByProximity(int latitude, int longitude, int raio)
+        public async Task<IActionResult> GetByProximity([FromQuery] double latitude, [FromQuery] double longitude, [FromQuery] double raio)
+
         {
             _logger.LogInformation("Buscando por proximidade (Lat: {Latitude}, Long: {Longitude}, Raio: {Raio})", latitude, longitude, raio);
             return Ok(await _service.GetByProximityAsync(latitude, longitude, raio));
@@ -67,6 +68,12 @@ namespace VaggouAPI
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ParkingLotDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao criar estacionamento.");
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Criando novo estacionamento.");
             var created = await _service.CreateAsync(dto);
             _logger.LogInformation("Estacionamento criado. ID: {Id}", created.Id);
@@ -76,6 +83,12 @@ namespace VaggouAPI
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] ParkingLotDto dto, Guid id)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao atualizar estacionamento ID: {Id}", id);
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Atualizando estacionamento ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
             _logger.LogInformation("Estacionamento atualizado. ID: {Id}", updated.Id);

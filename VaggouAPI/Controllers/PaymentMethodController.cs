@@ -33,6 +33,12 @@ namespace VaggouAPI
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PaymentMethodDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao criar metodo de pagamento.");
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Criando novo metodo de pagamento.");
             var created = await _service.CreateAsync(dto);
             _logger.LogInformation("Metodo de pagamento criado. ID: {Id}", created.Id);
@@ -42,6 +48,12 @@ namespace VaggouAPI
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] PaymentMethodDto dto, Guid id)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao atualizar metodo de pagamento ID: {Id}", id);
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Atualizando metodo de pagamento ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
             _logger.LogInformation("Metodo de pagamento atualizado. ID: {Id}", updated.Id);

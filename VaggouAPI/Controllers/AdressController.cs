@@ -32,6 +32,12 @@ namespace VaggouAPI
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AdressDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao criar endereço.");
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Criando novo endereço.");
             var created = await _service.CreateAsync(dto);
             _logger.LogInformation("Endereço criado. ID: {Id}", created.Id);
@@ -41,6 +47,12 @@ namespace VaggouAPI
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] AdressDto dto, Guid id)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Erro de validação ao atualizar endereço ID: {Id}", id);
+                return BadRequest(ModelState);
+            }
+
             _logger.LogInformation("Atualizando endereço ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
             _logger.LogInformation("Endereço atualizado. ID: {Id}", updated.Id);
