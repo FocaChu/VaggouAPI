@@ -14,6 +14,6 @@
 
         Task<Payment?> UpdateAsync(PaymentDto dto, Guid id);
 
-        Task<bool> DeleteAsync(Guid id);
+        Task DeleteAsync(Guid id);
     }
 }

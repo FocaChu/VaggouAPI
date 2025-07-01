@@ -15,22 +15,16 @@ namespace VaggouAP
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Payment>> GetAllAsync()
-        {
-            return await IncludeAll().ToListAsync();
-        }
+        public async Task<IEnumerable<Payment>> GetAllAsync() =>
+            await IncludeAll().ToListAsync();
 
-        public async Task<Payment?> GetByIdAsync(Guid id)
-        {
-            return await IncludeAll().FirstOrDefaultAsync(e => e.Id == id);
-        }
+        public async Task<Payment?> GetByIdAsync(Guid id) =>
+            await IncludeAll().FirstOrDefaultAsync(e => e.Id == id);
 
-        public async Task<IEnumerable<Payment>> GetByPaymentMethodAsync(Guid paymentMethodId)
-        {
-            return await IncludeAll()
+        public async Task<IEnumerable<Payment>> GetByPaymentMethodAsync(Guid paymentMethodId) =>
+            await IncludeAll()
                 .Where(p => p.PaymentMethodId == paymentMethodId)
                 .ToListAsync();
-        }
 
         public async Task<IEnumerable<Payment>> GetByMonthAsync(int year, int month)
         {
@@ -44,16 +38,11 @@ namespace VaggouAP
 
         public async Task<Payment> CreateAsync(PaymentDto dto)
         {
-            var created = _mapper.Map<Payment>(dto);
+            var paymentMethod = await _context.PaymentMethods.FindAsync(dto.PaymentMethodId)
+                ?? throw new BusinessException("PaymentMethod not found.");
 
-            var paymentMethod = await _context.PaymentMethods.FindAsync(dto.PaymentMethodId);
-            if (paymentMethod == null)
-                throw new BusinessException("PaymentMethod not found.");
-            else
-            {
-                created.PaymentMethod = paymentMethod;
-                created.PaymentMethodId = paymentMethod.Id;
-            }
+            var created = _mapper.Map<Payment>(dto);
+            created.PaymentMethod = paymentMethod;
 
             await _context.Payments.AddAsync(created);
 
@@ -63,34 +52,32 @@ namespace VaggouAP
 
         public async Task<Payment?> UpdateAsync(PaymentDto dto, Guid id)
         {
-            var updated = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id);
+            var updated = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id)
+                ?? throw new NotFoundException("Pagamento não encontrado.");
 
-            if (updated == null) return null;
+            var reservation = await _context.Reservations.FirstOrDefaultAsync(e => e.Id == dto.ReservationId)
+                ?? throw new NotFoundException("Pagamento não encontrado.");
 
             _mapper.Map(dto, updated);
+            updated.Reservation = reservation;
 
             _context.Payments.Update(updated);
             await _context.SaveChangesAsync();
             return updated;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var entity = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id);
-
-            if (entity == null) return false;
+            var entity = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id)
+                ?? throw new NotFoundException("Pagamento não encontrado.");
 
             _context.Remove(entity);
-
             await _context.SaveChangesAsync();
-            return true;
         }
 
-        private IQueryable<Payment> IncludeAll()
-        {
-            return _context.Payments
+        private IQueryable<Payment> IncludeAll() =>
+            _context.Payments
                 .Include(pl => pl.Reservation)
                 .Include(pl => pl.PaymentMethod);
-        }
     }
 }
