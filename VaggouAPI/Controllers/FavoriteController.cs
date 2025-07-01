@@ -62,7 +62,7 @@ namespace VaggouAPI
 
             _logger.LogInformation("Atualizando estacionamento favorito ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Estacionamento atualizado favorito. ID: {Id}", updated.Id);
+            _logger.LogInformation("Estacionamento favorito atualizado. ID: {Id}", updated.Id);
             return Ok(updated);
         }
 

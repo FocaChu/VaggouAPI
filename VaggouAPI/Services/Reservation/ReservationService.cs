@@ -14,20 +14,24 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Reservation>> GetAllAsync()
-        {
-            return await IncludeAll().ToListAsync();
-        }
+        public async Task<IEnumerable<Reservation>> GetAllAsync() =>
+            await IncludeAll().ToListAsync();
 
-        public async Task<Reservation?> GetByIdAsync(Guid id)
-        {
-            return await IncludeAll().FirstOrDefaultAsync(r => r.Id == id);
-        }
+        public async Task<Reservation?> GetByIdAsync(Guid id) =>
+            await IncludeAll().FirstOrDefaultAsync(r => r.Id == id);
 
-        public async Task<IEnumerable<Reservation>> GetByClientIdAsync(Guid clientId)
-        {
-            return await IncludeAll()
+        public async Task<IEnumerable<Reservation>> GetByClientIdAsync(Guid clientId) =>
+            await IncludeAll()
                 .Where(r => r.ClientId == clientId)
+                .ToListAsync();
+
+        public async Task<IEnumerable<Reservation>> GetByMonthAsync(int year, int month)
+        {
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1);
+
+            return await IncludeAll()
+                .Where(p => p.Date >= startDate && p.Date < endDate)
                 .ToListAsync();
         }
 
@@ -42,35 +46,25 @@ namespace VaggouAPI
             );
 
             if (isOccupied)
-                throw new BusinessException("Parking spot is already reserved for the selected time.");
+                throw new BusinessException("A vaga já está reservada no tempo selecionado.");
 
-            var reservation = _mapper.Map<Reservation>(dto);
-
-            // Valida e associa entidades relacionadas
             var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new BusinessException("Client not found.");
+                ?? throw new BusinessException("Cliente não encontrado.");
 
             var vehicle = await _context.Vehicles.FindAsync(dto.VehicleId)
-                ?? throw new BusinessException("Vehicle not found.");
+                ?? throw new BusinessException("Veiculo não encontrado.");
 
             var spot = await _context.ParkingSpots.FindAsync(dto.ParkingSpotId)
-                ?? throw new BusinessException("Parking spot not found.");
+                ?? throw new BusinessException("Vaga não encontrada.");
 
             var payment = await _context.Payments.FindAsync(dto.PaymentId)
-                ?? throw new BusinessException("Payment not found.");
+                ?? throw new BusinessException("Pagamento não encontrado.");
 
-            // Associação manual
+            var reservation = _mapper.Map<Reservation>(dto);
             reservation.Client = client;
-            reservation.ClientId = client.Id;
-
             reservation.Vehicle = vehicle;
-            reservation.VehicleId = vehicle.Id;
-
             reservation.ParkingSpot = spot;
-            reservation.ParkingSpotId = spot.Id;
-
             reservation.Payment = payment;
-            reservation.PaymentId = payment.Id;
 
             await _context.Reservations.AddAsync(reservation);
             await _context.SaveChangesAsync();
@@ -78,26 +72,24 @@ namespace VaggouAPI
             return reservation;
         }
 
-        public async Task<Reservation?> UpdateAsync(Guid id, ReservationDto dto)
+        public async Task<Reservation?> UpdateAsync(ReservationDto dto, Guid id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation == null) return null;
+            var reservation = await _context.Reservations.FindAsync(id)
+                ?? throw new NotFoundException("Reserva não encontrada.");
 
-            _mapper.Map(dto, reservation);
-
-            // Atualiza relações se necessário
             var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new BusinessException("Client not found.");
+                ?? throw new BusinessException("Cliente não encontrado.");
 
             var vehicle = await _context.Vehicles.FindAsync(dto.VehicleId)
-                ?? throw new BusinessException("Vehicle not found.");
+                ?? throw new BusinessException("Veiculo não encontrado.");
 
             var spot = await _context.ParkingSpots.FindAsync(dto.ParkingSpotId)
-                ?? throw new BusinessException("Parking spot not found.");
+                ?? throw new BusinessException("Vaga não encontrada.");
 
             var payment = await _context.Payments.FindAsync(dto.PaymentId)
-                ?? throw new BusinessException("Payment not found.");
+                ?? throw new BusinessException("Pagamento não encontrado.");
 
+            _mapper.Map(dto, reservation);
             reservation.Client = client;
             reservation.Vehicle = vehicle;
             reservation.ParkingSpot = spot;
@@ -109,24 +101,20 @@ namespace VaggouAPI
             return reservation;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation == null) return false;
+            var reservation = await _context.Reservations.FindAsync(id)
+                ?? throw new NotFoundException("Reserva não encontrada.");
 
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        private IQueryable<Reservation> IncludeAll()
-        {
-            return _context.Reservations
+        private IQueryable<Reservation> IncludeAll() =>
+            _context.Reservations
                 .Include(r => r.Client)
                 .Include(r => r.Vehicle)
                 .Include(r => r.ParkingSpot)
                 .Include(r => r.Payment);
-        }
     }
 }

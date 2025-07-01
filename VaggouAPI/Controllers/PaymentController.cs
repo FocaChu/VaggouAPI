@@ -19,101 +19,66 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Solicitada listagem de todos os pagamentos.");
-            var result = await _service.GetAllAsync();
-            return Ok(result);
+            return Ok(_service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Buscando pagamento com ID: {Id}", id);
-            var result = await _service.GetByIdAsync(id);
-            if (result == null)
-            {
-                _logger.LogWarning("Pagamento com ID {Id} não encontrado.", id);
-                return NotFound();
-            }
-
-            return Ok(result);
+            return Ok(await _service.GetByIdAsync(id));
         }
 
         [HttpGet("paymentMethod/{paymentMethodId}")]
         public async Task<IActionResult> GetByZipCode(Guid paymentMethodId)
         {
             _logger.LogInformation("Buscando pagamentos pelo metodo de pagamento: {PaymentMethod}", paymentMethodId);
-            var result = await _service.GetByPaymentMethodAsync(paymentMethodId);
-            return Ok(result);
+            return Ok(await _service.GetByPaymentMethodAsync(paymentMethodId));
         }
 
         [HttpGet("month")]
         public async Task<IActionResult> GetPaymentsByMonth([FromQuery] int year, [FromQuery] int month)
         {
-            var payments = await _service.GetByMonthAsync(year, month);
-            return Ok(payments);
+            _logger.LogInformation("Buscando pagamento por mês: {Mounth}", month);
+            return Ok(await _service.GetByMonthAsync(year, month));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PaymentDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                _logger.LogInformation("Tentando criar um novo pagamento.");
-                var created = await _service.CreateAsync(dto);
-                _logger.LogInformation("Pagamento criado com sucesso. ID: {Id}", created.Id);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                _logger.LogWarning("Erro de validação ao criar pagamento.");
+                return BadRequest(ModelState);
             }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro de negócio ao criar pagamento: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao criar pagamento.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+
+            _logger.LogInformation("Criando novo pagamento.");
+            var created = await _service.CreateAsync(dto);
+            _logger.LogInformation("Pagamento criado. ID: {Id}", created.Id);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] PaymentDto dto, Guid id)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                _logger.LogInformation("Tentando atualizar pagamento com ID: {Id}", id);
-                var updated = await _service.UpdateAsync(dto, id);
-                if (updated == null)
-                {
-                    _logger.LogWarning("Pagamento com ID {Id} não encontrado para atualização.", id);
-                    return NotFound();
-                }
+                _logger.LogWarning("Erro de validação ao atualizar pagamento ID: {Id}", id);
+                return BadRequest(ModelState);
+            }
 
-                _logger.LogInformation("Pagamento atualizado com sucesso. ID: {Id}", id);
-                return Ok(updated);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro de negócio ao atualizar pagamento: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao atualizar pagamento.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+            _logger.LogInformation("Atualizando pagamento ID: {Id}", id);
+            var updated = await _service.UpdateAsync(dto, id);
+            _logger.LogInformation("Pagamento atualizado. ID: {Id}", updated.Id);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Tentando deletar pagamento com ID: {Id}", id);
-            var success = await _service.DeleteAsync(id);
-            if (!success)
-            {
-                _logger.LogWarning("Pagamento com ID {Id} não encontrado para deleção.", id);
-                return NotFound();
-            }
-
-            _logger.LogInformation("Pagamento com ID {Id} deletado com sucesso.", id);
+            _logger.LogInformation("Deletando pagamento ID: {Id}", id);
+            await _service.DeleteAsync(id);
+            _logger.LogInformation("Pagamento deletado. ID: {Id}", id);
             return NoContent();
         }
     }

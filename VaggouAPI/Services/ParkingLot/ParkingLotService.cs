@@ -56,6 +56,7 @@ namespace VaggouAPI
 
             await _context.ParkingLots.AddAsync(entity);
             await _context.SaveChangesAsync();
+
             return entity;
         }
 
@@ -76,6 +77,7 @@ namespace VaggouAPI
 
             _context.ParkingLots.Update(entity);
             await _context.SaveChangesAsync();
+
             return entity;
         }
 
