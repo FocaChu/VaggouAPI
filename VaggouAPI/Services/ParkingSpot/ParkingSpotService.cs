@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace VaggouAPI
@@ -15,36 +14,26 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ParkingSpot>> GetAllAsync()
-        {
-            return await _context.ParkingSpots.ToListAsync();
-        }
+        public async Task<IEnumerable<ParkingSpot>> GetAllAsync() =>
+            await _context.ParkingSpots.ToListAsync();
 
-        public async Task<ParkingSpot?> GetByIdAsync(Guid id)
-        {
-            return await _context.ParkingSpots
+        public async Task<ParkingSpot?> GetByIdAsync(Guid id) =>
+            await _context.ParkingSpots
                 .FirstOrDefaultAsync(ps => ps.Id == id);
-        }
 
-        public async Task<IEnumerable<ParkingSpot>> GetByParkingLotIdAsync(Guid parkingLotId)
-        {
-            return await _context.ParkingSpots
+        public async Task<IEnumerable<ParkingSpot>> GetByParkingLotIdAsync(Guid parkingLotId) =>
+            await _context.ParkingSpots
                 .Where(ps => ps.ParkingLotId == parkingLotId)
                 .ToListAsync();
-        }
+
 
         public async Task<ParkingSpot> CreateAsync(ParkingSpotDto dto)
         {
-            var created = _mapper.Map<ParkingSpot>(dto);
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
+                ?? throw new BusinessException("Estacionamento não encontrado.");
 
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
-            if (parkingLot == null)
-                    throw new BusinessException("ParkingLot not found.");
-            else
-            {
-                created.ParkingLot = parkingLot;
-                created.ParkingLotId = parkingLot.Id;
-            }
+            var created = _mapper.Map<ParkingSpot>(dto);
+            created.ParkingLot = parkingLot;
 
             await _context.ParkingSpots.AddAsync(created);
             await _context.SaveChangesAsync();
@@ -53,39 +42,32 @@ namespace VaggouAPI
 
         public async Task<ParkingSpot?> UpdateAsync(ParkingSpotDto dto, Guid Id)
         {
-            var updated = await _context.ParkingSpots
-                .Include(ps => ps.ParkingLot)
-                .FirstOrDefaultAsync(ps => ps.Id == Id);
+            var updated = await IncludeAll()
+                .FirstOrDefaultAsync(ps => ps.Id == Id)
+                ?? throw new NotFoundException("Vaga não encontrada.");   
 
-            if (updated == null) return null;
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
+                ?? throw new BusinessException("Estacionamento não encontrado.");
 
             _mapper.Map(dto, updated);
-
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
-            if (parkingLot == null)
-                throw new BusinessException("ParkingLot not found.");
-            else
-            {
-                updated.ParkingLot = parkingLot;
-                updated.ParkingLotId = parkingLot.Id;
-            }
+            updated.ParkingLot = parkingLot;
 
             _context.ParkingSpots.Update(updated);
             await _context.SaveChangesAsync();
             return updated;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.ParkingSpots.FindAsync(id);
+            var entity = await _context.ParkingLots.FindAsync(id)
+                ?? throw new NotFoundException("Vaga não encontrada para deleção.");
 
-            if (entity == null)
-                return false;
-
-            _context.ParkingSpots.Remove(entity);
-            _context.SaveChanges();
-
-            return true;
+            _context.ParkingLots.Remove(entity);
+            await _context.SaveChangesAsync();
         }
+
+        private IQueryable<ParkingSpot> IncludeAll() =>
+            _context.ParkingSpots
+                .Include(pl => pl.ParkingLot);
     }
 }

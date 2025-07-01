@@ -14,6 +14,6 @@ namespace VaggouAPI
 
         Task<ParkingSpot?> UpdateAsync(ParkingSpotDto dto, Guid Id);
 
-        Task<bool> DeleteAsync(Guid id);
+        Task DeleteAsync(Guid id);
     }
 }
