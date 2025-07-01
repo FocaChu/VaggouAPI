@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace VaggouAPI
+﻿namespace VaggouAPI
 {
     public interface IParkingSpotService
     {

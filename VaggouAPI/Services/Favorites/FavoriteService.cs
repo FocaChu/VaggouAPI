@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace VaggouAPI
@@ -15,45 +14,27 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Favorite>> GetAllAsync()
-        {
-            return await IncludeAll().ToListAsync();
-        }
+        public async Task<IEnumerable<Favorite>> GetAllAsync() =>
+            await IncludeAll().ToListAsync();
 
-        public async Task<Favorite?> GetByIdAsync(Guid id)
-        {
-            return await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id);
-        }
+        public async Task<Favorite?> GetByIdAsync(Guid id) =>
+            await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id);
 
-        public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId)
-        {
-            return await IncludeAll().Where(f => f.ClientId == clientId)
+        public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId) =>
+            await IncludeAll().Where(f => f.ClientId == clientId)
                 .ToListAsync();
-        }
 
         public async Task<Favorite> CreateAsync(FavoriteDto dto)
         {
+            var client = await _context.Clients.FindAsync(dto.ClientId)
+                ?? throw new BusinessException("Cliente não encontrado.");
+
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
+                ?? throw new BusinessException("Estacionamento não encontrado.");
+
             var created = _mapper.Map<Favorite>(dto);
-
-            var client = await _context.Clients.FindAsync(dto.ClientId);
-
-            if(client == null)
-                throw new BusinessException("Client not found.");
-            else 
-            {
-                created.Client = client;
-                created.ClientId = client.Id;
-            }
-
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
-
-            if(parkingLot == null)
-                throw new BusinessException("ParkingLot not found.");
-            else 
-            {
-                created.ParkingLot = parkingLot;
-                created.ParkingLotId = parkingLot.Id;
-            }
+            created.Client = client;
+            created.ParkingLot = parkingLot;
 
             await _context.Favorites.AddAsync(created);
 
@@ -63,54 +44,35 @@ namespace VaggouAPI
 
         public async Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id)
         {
-            var updated = await _context.Favorites.FindAsync(id);
+            var updated = await _context.Favorites.FindAsync(id)
+                ?? throw new NotFoundException("Estacionamento favorito não encontrado.");
 
-            if (updated == null) return null;
+            var client = await _context.Clients.FindAsync(dto.ClientId)
+                ?? throw new BusinessException("Cliente não encontrado.");
+
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
+                ?? throw new NotFoundException("Estacionamento não encontrado.");
 
             _mapper.Map(dto, updated);
-
-            var client = await _context.Clients.FindAsync(dto.ClientId);
-
-            if (client == null)
-                throw new BusinessException("Client not found.");
-            else
-            {
-                updated.Client = client;
-                updated.ClientId = client.Id;
-            }
-
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId);
-
-            if (parkingLot == null)
-                throw new BusinessException("ParkingLot not found.");
-            else
-            {
-                updated.ParkingLot = parkingLot;
-                updated.ParkingLotId = parkingLot.Id;
-            }
+            updated.Client = client;
+            updated.ParkingLot = parkingLot;
 
             _context.Favorites.Update(updated);
             await _context.SaveChangesAsync();
             return updated;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.Favorites.FindAsync(id);
+            var entity = await _context.ParkingLots.FindAsync(id)
+                ?? throw new NotFoundException("Estacionamento favorito não encontrado para deleção.");
 
-            if (entity == null) 
-                return false;
-
-            _context.Remove(entity);
-
+            _context.ParkingLots.Remove(entity);
             await _context.SaveChangesAsync();
-            return true;
         }
 
-        private IQueryable<Favorite> IncludeAll()
-        {
-            return _context.Favorites
+        private IQueryable<Favorite> IncludeAll() =>
+            _context.Favorites
                 .Include(f => f.ParkingLot);
-        }
     }
 }

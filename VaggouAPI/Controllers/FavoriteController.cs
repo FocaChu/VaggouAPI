@@ -18,95 +18,60 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Solicitada listagem de todos os estacionamentos favoritados.");
-            var result = await _service.GetAllAsync();
-            return Ok(result);
+            _logger.LogInformation("Listando todos os estacionamentos favoritados.");
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando estacionamento favoritado com ID: {Id}", id);
-            var result = await _service.GetByIdAsync(id);
-            if (result == null)
-            {
-                _logger.LogWarning("Estacionamento favoritado com ID {Id} não encontrado.", id);
-                return NotFound();
-            }
-
-            return Ok(result);
+            _logger.LogInformation("Buscando estacionamento favorito por ID: {Id}", id);
+            return Ok(await _service.GetByIdAsync(id));
         }
 
         [HttpGet("client/{clientId}")]
         public async Task<IActionResult> GetByClientId(Guid clientId)
         {
             _logger.LogInformation("Buscando favoritos do cliente ID: {ClientId}", clientId);
-            var result = await _service.GetByClientIdAsync(clientId);
-            return Ok(result);
+            return Ok(await _service.GetByClientIdAsync(clientId));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] FavoriteDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                _logger.LogInformation("Tentando adicionar estacionamento aos favoritos. ClientId: {ClientId}, ParkingLotId: {ParkingLotId}", dto.ClientId, dto.ParkingLotId);
-                var created = await _service.CreateAsync(dto);
-                _logger.LogInformation("Favorito criado com sucesso. ID: {Id}", created.Id);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                _logger.LogWarning("Erro de validação ao criar estacionamento favorito.");
+                return BadRequest(ModelState);
             }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro ao criar favorito: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao criar favorito.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+
+            _logger.LogInformation("Criando novo estacionamento favorito.");
+            var created = await _service.CreateAsync(dto);
+            _logger.LogInformation("Estacionamento favorito criado. ID: {Id}", created.Id);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] FavoriteDto dto, Guid id)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                _logger.LogInformation("Tentando atualizar favorito ID: {Id}", id);
-                var updated = await _service.UpdateAsync(dto, id);
-                if (updated == null)
-                {
-                    _logger.LogWarning("Favorito ID {Id} não encontrado para atualização.", id);
-                    return NotFound();
-                }
+                _logger.LogWarning("Erro de validação ao atualizar estacionamento favorito ID: {Id}", id);
+                return BadRequest(ModelState);
+            }
 
-                _logger.LogInformation("Favorito atualizado com sucesso. ID: {Id}", id);
-                return Ok(updated);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro ao atualizar favorito: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao atualizar favorito.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+            _logger.LogInformation("Atualizando estacionamento favorito ID: {Id}", id);
+            var updated = await _service.UpdateAsync(dto, id);
+            _logger.LogInformation("Estacionamento atualizado favorito. ID: {Id}", updated.Id);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Tentando deletar favorito ID: {Id}", id);
-            var success = await _service.DeleteAsync(id);
-            if (!success)
-            {
-                _logger.LogWarning("Favorito ID {Id} não encontrado para deleção.", id);
-                return NotFound();
-            }
-
-            _logger.LogInformation("Favorito ID {Id} deletado com sucesso.", id);
+            _logger.LogInformation("Deletando estacionamento favorito ID: {Id}", id);
+            await _service.DeleteAsync(id);
+            _logger.LogInformation("Estacionamento favorito deletado. ID: {Id}", id);
             return NoContent();
         }
     }
