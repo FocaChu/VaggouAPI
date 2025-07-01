@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace VaggouAPI
 {
@@ -16,15 +14,13 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Adress>> GetAllAsync()
-        {
-            return await _context.Adresses.ToListAsync();
-        }
+        public async Task<IEnumerable<Adress>> GetAllAsync() =>
+            await _context.Adresses.ToListAsync();
+        
 
-        public async Task<Adress?> GetByIdAsync(Guid id)
-        {
-            return await _context.Adresses.FindAsync(id);
-        }
+        public async Task<Adress?> GetByIdAsync(Guid id) =>
+            await _context.Adresses.FindAsync(id);
+        
 
         public async Task<Adress> CreateAsync(AdressDto dto)
         {

@@ -18,87 +18,41 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Solicitada listagem de todos os endereços.");
-            var result = await _service.GetAllAsync();
-            return Ok(result);
+            _logger.LogInformation("Listando todos os endereços.");
+            return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando endereço com ID: {Id}", id);
-            var result = await _service.GetByIdAsync(id);
-            if (result == null)
-            {
-                _logger.LogWarning("Endereço com ID {Id} não encontrado.", id);
-                return NotFound();
-            }
-
-            return Ok(result);
+            _logger.LogInformation("Buscando endereço por ID: {Id}", id);
+            return Ok(await _service.GetByIdAsync(id));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AdressDto dto)
         {
-            try
-            {
-                _logger.LogInformation("Tentando adicionar endereço.");
-                var created = await _service.CreateAsync(dto);
-                _logger.LogInformation("Endereço criado com sucesso. ID: {Id}", created.Id);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro ao criar endereço: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao criar endereço.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+            _logger.LogInformation("Criando novo endereço.");
+            var created = await _service.CreateAsync(dto);
+            _logger.LogInformation("Endereço criado. ID: {Id}", created.Id);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromBody] AdressDto dto, Guid id)
         {
-            try
-            {
-                _logger.LogInformation("Tentando atualizar endereço com ID: {Id}", id);
-                var updated = await _service.UpdateAsync(dto, id);
-                if (updated == null)
-                {
-                    _logger.LogWarning("Endereço com ID {Id} não encontrado para atualização.", id);
-                    return NotFound();
-                }
-
-                _logger.LogInformation("Endereço atualizado com sucesso. ID: {Id}", id);
-                return Ok(updated);
-            }
-            catch (BusinessException ex)
-            {
-                _logger.LogWarning("Erro ao atualizar endereço: {Mensagem}", ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro inesperado ao atualizar endereço.");
-                return StatusCode(500, "Erro interno do servidor.");
-            }
+            _logger.LogInformation("Atualizando endereço ID: {Id}", id);
+            var updated = await _service.UpdateAsync(dto, id);
+            _logger.LogInformation("Endereço atualizado. ID: {Id}", updated.Id);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Tentando deletar endereço com ID: {Id}", id);
-            var success = await _service.DeleteAsync(id);
-            if (!success)
-            {
-                _logger.LogWarning("Endereço com ID {Id} não encontrado para deleção.", id);
-                return NotFound();
-            }
-
-            _logger.LogInformation("Endereço com ID {Id} deletado com sucesso.", id);
+            _logger.LogInformation("Deletando endereço ID: {Id}", id);
+            await _service.DeleteAsync(id);
+            _logger.LogInformation("Endereço deletado. ID: {Id}", id);
             return NoContent();
         }
     }
