@@ -142,6 +142,5 @@ namespace VaggouAPI
                 .Include(pl => pl.ParkingSpots)
                 .Include(pl => pl.Favorites);
         }
-
     }
 }

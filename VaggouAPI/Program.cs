@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using VaggouAP;
 using VaggouAPI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddScoped(typeof(IAdressService), typeof(AdressService));
 builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
 builder.Services.AddScoped(typeof(IParkingLotService), typeof(ParkingLotService));
 builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotService));
+builder.Services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace VaggouAPI.Controllers
+namespace VaggouAPI
 {
     [Route("api/[controller]")]
     [ApiController]

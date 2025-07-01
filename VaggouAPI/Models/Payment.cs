@@ -10,13 +10,11 @@
 
         public Status Status { get; set; }
 
-        public Guid ReservationId { get; set; }
-
-        public Reservation Reservation { get; set; }
-
         public Guid PaymentMethodId { get; set; }
 
-        public PaymentMethod PaymentMethod { get; set; } 
+        public PaymentMethod PaymentMethod { get; set; }
+
+        public Reservation Reservation { get; set; }
 
     }
 }

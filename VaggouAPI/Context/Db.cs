@@ -93,11 +93,17 @@ namespace VaggouAPI
                 .WithOne(r => r.ParkingSpot)
                 .HasForeignKey(r => r.ParkingSpotId);
 
-            // Payment → PaymentMethod
+            // Payment → PaymentMethod, Reservation
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.PaymentMethod)
                 .WithMany(m => m.Payments)
                 .HasForeignKey(p => p.PaymentMethodId);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Reservation)
+                .WithOne(r => r.Payment)
+                .HasForeignKey<Reservation>(r => r.PaymentId)
+                .IsRequired();
 
             // Reservation → Client, Vehicle, ParkingSpot, Payment
             modelBuilder.Entity<Reservation>()
@@ -114,11 +120,6 @@ namespace VaggouAPI
                 .HasOne(r => r.ParkingSpot)
                 .WithMany(s => s.Reservations)
                 .HasForeignKey(r => r.ParkingSpotId);
-
-            modelBuilder.Entity<Reservation>()
-                .HasOne(r => r.Payment)
-                .WithOne(p => p.Reservation)
-                .HasForeignKey<Reservation>(r => r.PaymentId);
 
             // Vehicle → VehicleModel
             modelBuilder.Entity<Vehicle>()
