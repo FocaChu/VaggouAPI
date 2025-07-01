@@ -27,6 +27,7 @@ builder.Services.AddScoped(typeof(IPaymentMethodService), typeof(PaymentMethodSe
 builder.Services.AddScoped(typeof(IReservationService), typeof(ReservationService));
 builder.Services.AddScoped(typeof(IUserService), typeof(UserService));
 builder.Services.AddScoped(typeof(IVehicleService), typeof(VehicleService));
+builder.Services.AddScoped(typeof(IVehicleModelService), typeof(VehicleModelService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
