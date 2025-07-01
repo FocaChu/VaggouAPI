@@ -14,15 +14,12 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<PaymentMethod>> GetAllAsync()
-        {
-            return await _context.PaymentMethods.ToListAsync();
-        }
+        public async Task<IEnumerable<PaymentMethod>> GetAllAsync() =>
+            await _context.PaymentMethods.ToListAsync();
+        
 
-        public async Task<PaymentMethod?> GetByIdAsync(Guid id)
-        {
-            return await _context.PaymentMethods.FindAsync(id);
-        }
+        public async Task<PaymentMethod?> GetByIdAsync(Guid id) =>
+            await _context.PaymentMethods.FindAsync(id);
 
         public async Task<PaymentMethod> CreateAsync(PaymentMethodDto dto)
         {
@@ -36,9 +33,8 @@ namespace VaggouAPI
 
         public async Task<PaymentMethod?> UpdateAsync(PaymentMethodDto dto, Guid id)
         {
-            var updated = await _context.PaymentMethods.FindAsync(id);
-
-            if (updated == null) return null;
+            var updated = await _context.PaymentMethods.FindAsync(id)
+                ?? throw new NotFoundException("Metodo de pagamento não encontrado.");
 
             _mapper.Map(dto, updated);
 
@@ -47,16 +43,14 @@ namespace VaggouAPI
             return updated;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.PaymentMethods.FindAsync(id);
+            var entity = await _context.PaymentMethods.FindAsync(id)
+                ?? throw new NotFoundException("Metodo de pagamento não encontrado para deleção.");
 
-            if (entity == null) return false;
-
-            _context.Remove(entity);
+            _context.PaymentMethods.Remove(entity);
 
             await _context.SaveChangesAsync();
-            return true;
         }
     }
 }

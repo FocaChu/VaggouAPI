@@ -35,7 +35,7 @@ namespace VaggouAPI
         public async Task<Adress?> UpdateAsync(AdressDto dto, Guid id)
         {
             var updated = await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Endereço não encontrado para deleção.");
+                ?? throw new NotFoundException("Endereço não encontrado.");
 
             _mapper.Map(dto, updated);
 

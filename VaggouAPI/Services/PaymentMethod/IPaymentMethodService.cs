@@ -10,6 +10,6 @@
 
         Task<PaymentMethod?> UpdateAsync(PaymentMethodDto dto, Guid id);
 
-        Task<bool> DeleteAsync(Guid id);
+        Task DeleteAsync(Guid id);
     }
 }
