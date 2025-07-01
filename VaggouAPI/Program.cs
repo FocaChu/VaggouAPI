@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using VaggouAP;
 using VaggouAPI;
+using VaggouAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,7 @@ app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<VaggouAPI.ExceptionMiddleware>();
+app.UseMiddleware<AppExceptionMiddleware>();
 
 app.UseAuthorization();
 

@@ -1,9 +1,10 @@
-﻿namespace VaggouAPI
+﻿using System.Net;
+
+namespace VaggouAPI
 {
-    public class BusinessException : Exception
+    public class BusinessException : AppException
     {
-        public BusinessException(string message) : base(message)
-        {
-        }
+        public BusinessException(string message)
+            : base(message, HttpStatusCode.BadRequest) { }
     }
 }
