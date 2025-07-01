@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace VaggouAPI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdressController : ControllerBase
+    public class PaymentMethodController : ControllerBase
     {
-        private readonly IAdressService _service;
-        private readonly ILogger<AdressController> _logger;
+        private readonly IPaymentMethodService _service;
+        private readonly ILogger<PaymentMethodController> _logger;
 
-        public AdressController(IAdressService service, ILogger<AdressController> logger)
+        public PaymentMethodController(IPaymentMethodService service, ILogger<PaymentMethodController> logger)
         {
             _service = service;
             _logger = logger;
@@ -18,7 +19,7 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Solicitada listagem de todos os endereços.");
+            _logger.LogInformation("Solicitada listagem de todos os metodos de pagamento.");
             var result = await _service.GetAllAsync();
             return Ok(result);
         }
@@ -26,11 +27,11 @@ namespace VaggouAPI
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando endereço com ID: {Id}", id);
+            _logger.LogInformation("Buscando metodo de pagamento com ID: {Id}", id);
             var result = await _service.GetByIdAsync(id);
             if (result == null)
             {
-                _logger.LogWarning("Endereço com ID {Id} não encontrado.", id);
+                _logger.LogWarning("Metodo de pagamento com ID {Id} não encontrado.", id);
                 return NotFound();
             }
 
@@ -38,51 +39,51 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AdressDto dto)
+        public async Task<IActionResult> Create([FromBody] PaymentMethodDto dto)
         {
             try
             {
-                _logger.LogInformation("Tentando adicionar endereço.");
+                _logger.LogInformation("Tentando adicionar metodo de pagamento.");
                 var created = await _service.CreateAsync(dto);
-                _logger.LogInformation("Endereço criado com sucesso. ID: {Id}", created.Id);
+                _logger.LogInformation("Metodo de pagamento criado com sucesso. ID: {Id}", created.Id);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (BusinessException ex)
             {
-                _logger.LogWarning("Erro ao criar endereço: {Mensagem}", ex.Message);
+                _logger.LogWarning("Erro ao criar metodo de pagamento: {Mensagem}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao criar endereço.");
+                _logger.LogError(ex, "Erro inesperado ao criar metodo de pagamento.");
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] AdressDto dto, Guid id)
+        public async Task<IActionResult> Update([FromBody] PaymentMethodDto dto, Guid id)
         {
             try
             {
-                _logger.LogInformation("Tentando atualizar endereço com ID: {Id}", id);
+                _logger.LogInformation("Tentando atualizar metodo de pagamento com ID: {Id}", id);
                 var updated = await _service.UpdateAsync(dto, id);
                 if (updated == null)
                 {
-                    _logger.LogWarning("Endereço com ID {Id} não encontrado para atualização.", id);
+                    _logger.LogWarning("Metodo de pagamento com ID {Id} não encontrado para atualização.", id);
                     return NotFound();
                 }
 
-                _logger.LogInformation("Endereço atualizado com sucesso. ID: {Id}", id);
+                _logger.LogInformation("Metodo de pagamento atualizado com sucesso. ID: {Id}", id);
                 return Ok(updated);
             }
             catch (BusinessException ex)
             {
-                _logger.LogWarning("Erro ao atualizar endereço: {Mensagem}", ex.Message);
+                _logger.LogWarning("Erro ao atualizar metodo de pagamento: {Mensagem}", ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao atualizar endereço.");
+                _logger.LogError(ex, "Erro inesperado ao atualizar metodo de pagamento.");
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
@@ -90,15 +91,15 @@ namespace VaggouAPI
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Tentando deletar endereço com ID: {Id}", id);
+            _logger.LogInformation("Tentando deletar metodo de pagamento com ID: {Id}", id);
             var success = await _service.DeleteAsync(id);
             if (!success)
             {
-                _logger.LogWarning("Endereço com ID {Id} não encontrado para deleção.", id);
+                _logger.LogWarning("Metodo de pagamento com ID {Id} não encontrado para deleção.", id);
                 return NotFound();
             }
 
-            _logger.LogInformation("Endereço com ID {Id} deletado com sucesso.", id);
+            _logger.LogInformation("Metodo de pagamento com ID {Id} deletado com sucesso.", id);
             return NoContent();
         }
     }
