@@ -38,9 +38,8 @@ namespace VaggouAPI
 
         public async Task<Adress?> UpdateAsync(AdressDto dto, Guid id)
         {
-            var updated = await _context.Adresses.FindAsync(id);
-
-            if (updated == null) return null;
+            var updated = await _context.Adresses.FindAsync(id)
+                ?? throw new NotFoundException("Endereço não encontrado para deleção.");
 
             _mapper.Map(dto, updated);
 
@@ -49,16 +48,14 @@ namespace VaggouAPI
             return updated;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.Adresses.FindAsync(id);
+            var entity = await _context.Adresses.FindAsync(id)
+                ?? throw new NotFoundException("Endereço não encontrado para deleção.");
 
-            if (entity == null) return false;
-
-            _context.Remove(entity);
+            _context.Adresses.Remove(entity);
 
             await _context.SaveChangesAsync();
-            return true;
         }
     }
 }
