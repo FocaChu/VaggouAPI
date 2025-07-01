@@ -18,11 +18,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(IAdressService), typeof(AdressService));
+builder.Services.AddScoped(typeof(IClientService), typeof(ClientService));
 builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
 builder.Services.AddScoped(typeof(IParkingLotService), typeof(ParkingLotService));
 builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotService));
 builder.Services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
 builder.Services.AddScoped(typeof(IPaymentMethodService), typeof(PaymentMethodService));
+builder.Services.AddScoped(typeof(IReservationService), typeof(ReservationService));
+builder.Services.AddScoped(typeof(IUserService), typeof(UserService));
+builder.Services.AddScoped(typeof(IVehicleService), typeof(VehicleService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
