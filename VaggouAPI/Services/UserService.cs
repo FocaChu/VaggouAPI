@@ -1,18 +1,22 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using VaggouAPI.DTOs;
+using VaggouAPI.Interfaces;
 using VaggouAPI.Models;
 
 namespace VaggouAPI.Services
 {
-    public class UserService
+    public class UserService:IUserService
     {
         private readonly Db _context;
         private readonly IMapper _mapper;
-        public UserService(Db _context, IMapper _mapper)
+        private readonly IAuthService _authService;
+        public UserService(Db _context, IMapper _mapper, IAuthService _authService)
         {
             this._context = _context;
             this._mapper = _mapper;
+            this._authService = _authService;
         }
 
         public async Task<List<User>> GetAllAsync()
@@ -40,8 +44,9 @@ namespace VaggouAPI.Services
             //    IsActive= dto.IsActive,
             //};
 
+            await _authService.Register(user);
             await _context.Users.AddAsync(user);
-
+            
             await _context.SaveChangesAsync();
             return user;
         }

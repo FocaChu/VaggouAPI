@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VaggouAPI.DTOs;
+using VaggouAPI.Interfaces;
 using VaggouAPI.Models;
 using VaggouAPI.Services;
 
@@ -10,9 +11,9 @@ namespace VaggouAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserService _service;
+        private readonly IUserService _service;
 
-        public UserController(UserService _service)
+        public UserController(IUserService _service)
         {
             this._service = _service;
         }

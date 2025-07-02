@@ -11,7 +11,7 @@ using VaggouAPI;
 namespace VaggouAPI.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20250630121906_inicio")]
+    [Migration("20250702221858_inicio")]
     partial class inicio
     {
         /// <inheritdoc />
@@ -59,15 +59,16 @@ namespace VaggouAPI.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
+
+                    b.Property<string>("TokenAcess")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

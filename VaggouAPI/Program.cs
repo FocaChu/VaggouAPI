@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using VaggouAPI;
+using VaggouAPI.Interfaces;
 using VaggouAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,8 +42,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(ITestService<,>), typeof(TestService<,>));
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<ClientService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
