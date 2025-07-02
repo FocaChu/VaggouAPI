@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class ParkingLot
     {
@@ -14,10 +16,12 @@
 
         public Client? Owner { get; set; }
 
+        [JsonIgnore]
         public ICollection<MonthlyReport> MonthlyReports { get; set; } = new List<MonthlyReport>();
 
         public ICollection<ParkingSpot> ParkingSpots { get; set; } = new List<ParkingSpot>();
 
+        [JsonIgnore]
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
     }
 }

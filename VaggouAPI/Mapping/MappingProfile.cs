@@ -49,6 +49,10 @@ namespace VaggouAPI
             CreateMap<VehicleDto, Vehicle>()
                 .ForMember(dest => dest.VehicleModel, opt => opt.Ignore())
                 .ForMember(dest => dest.Owner, opt => opt.Ignore());
+
+            //VehicleModel mapping
+            CreateMap<VehicleModel, VehicleModelDto>();
+            CreateMap<VehicleModel, VehicleModel>();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class Adress
     {
@@ -24,6 +26,7 @@
 
         public int Latitude { get; set; }
 
+        [JsonIgnore]
         public ICollection<ParkingLot> ParkingLots { get; set; } = new List<ParkingLot>();
     }
 }

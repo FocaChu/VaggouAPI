@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class Payment
     {
@@ -12,8 +14,10 @@
 
         public Guid PaymentMethodId { get; set; }
 
+        [JsonIgnore]
         public PaymentMethod PaymentMethod { get; set; }
 
+        [JsonIgnore]
         public Reservation Reservation { get; set; }
 
     }

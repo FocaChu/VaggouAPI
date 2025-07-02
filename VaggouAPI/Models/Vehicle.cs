@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class Vehicle
     {
@@ -10,12 +12,15 @@
 
         public Guid VehicleModelId { get; set; }
 
+        [JsonIgnore]
         public VehicleModel VehicleModel { get; set; }
 
         public Guid OwnerId { get; set; }
 
+        [JsonIgnore]
         public Client Owner { get; set; }
 
+        [JsonIgnore]
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
 }

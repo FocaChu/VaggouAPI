@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class MonthlyReport
     {
@@ -18,6 +20,7 @@
 
         public Guid ParkingLotId { get; set; }
 
+        [JsonIgnore]
         public ParkingLot ParkingLot { get; set; }
     }
 }

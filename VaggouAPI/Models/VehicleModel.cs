@@ -1,4 +1,6 @@
-﻿namespace VaggouAPI
+﻿using System.Text.Json.Serialization;
+
+namespace VaggouAPI
 {
     public class VehicleModel
     {
@@ -14,6 +16,7 @@
 
         public FuelType FuelType { get; set; }
 
+        [JsonIgnore]
         public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
 
     }

@@ -1,12 +1,14 @@
 {
-  "profiles": {
-    "VaggouAPI": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:55024;http://localhost:55025"
+    "profiles": {
+        "VaggouAPI": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": true,
+            "applicationUrl": "http://localhost:5077;https://localhost:7187",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "launchUrl": "swagger"
+        }
     }
-  }
 }
