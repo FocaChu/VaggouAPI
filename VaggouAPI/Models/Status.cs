@@ -2,10 +2,10 @@
 {
     public enum Status
     {
-        Success,
-        Failed,
-        Pending,
-        Refunded,
-        Cancelled
+        Success = 0,
+        Failed = 1,
+        Pending = 2,
+        Refunded = 3,
+        Cancelled = 4,
     }
 }

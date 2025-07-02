@@ -45,6 +45,26 @@ namespace VaggouAPI.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Clients",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    FullName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Phone = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CPF = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Clients", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "PaymentMethods",
                 columns: table => new
                 {
@@ -95,55 +115,6 @@ namespace VaggouAPI.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Amount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethodId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Payments_PaymentMethods_PaymentMethodId",
-                        column: x => x.PaymentMethodId,
-                        principalTable: "PaymentMethods",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Clients",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FullName = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Phone = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CPF = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clients", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Clients_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "ParkingLots",
                 columns: table => new
                 {
@@ -166,6 +137,28 @@ namespace VaggouAPI.Migrations
                         name: "FK_ParkingLots_Clients_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Amount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    PaidAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    PaymentMethodId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_PaymentMethods_PaymentMethodId",
+                        column: x => x.PaymentMethodId,
+                        principalTable: "PaymentMethods",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -325,12 +318,6 @@ namespace VaggouAPI.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Clients_UserId",
-                table: "Clients",
-                column: "UserId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Favorites_ClientId",
                 table: "Favorites",
                 column: "ClientId");
@@ -410,6 +397,9 @@ namespace VaggouAPI.Migrations
                 name: "Reservations");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "ParkingSpots");
 
             migrationBuilder.DropTable(
@@ -432,9 +422,6 @@ namespace VaggouAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }

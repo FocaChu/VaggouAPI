@@ -37,7 +37,7 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] VehicleModelDto dto)
+        public async Task<IActionResult> Create([FromBody]VehicleModelDto dto)
         {
             if (!ModelState.IsValid)
             {

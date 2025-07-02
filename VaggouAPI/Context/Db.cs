@@ -43,10 +43,10 @@ namespace VaggouAPI
                 .HasForeignKey(p => p.AdressId);
 
             // Client → User
-            modelBuilder.Entity<Client>()
-                .HasOne(c => c.User)
-                .WithOne(u => u.Client)
-                .HasForeignKey<Client>(c => c.UserId);
+            //modelBuilder.Entity<Client>()
+            //    .HasOne(c => c.User)
+            //    .WithOne(u => u.Client)
+            //    .HasForeignKey<Client>(c => c.UserId);
 
             // Client → Favorite, ParkingLot, Reservation, Vehicle
             modelBuilder.Entity<Client>()

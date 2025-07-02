@@ -13,6 +13,9 @@ namespace VaggouAPI
             CreateMap<Adress, AdressDto>();
             CreateMap<AdressDto, Adress>();
 
+            CreateMap<Client, ClientDto>();
+            CreateMap<ClientDto, Client>();
+
             //Favorite mapping
             CreateMap<Favorite, FavoriteDto>();
             CreateMap<FavoriteDto, Favorite>()
@@ -52,7 +55,7 @@ namespace VaggouAPI
 
             //VehicleModel mapping
             CreateMap<VehicleModel, VehicleModelDto>();
-            CreateMap<VehicleModel, VehicleModel>();
+            CreateMap<VehicleModelDto, VehicleModel>();
         }
     }
 }

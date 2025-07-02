@@ -89,13 +89,7 @@ namespace VaggouAPI.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
 
                     b.ToTable("Clients");
                 });
@@ -378,17 +372,6 @@ namespace VaggouAPI.Migrations
                     b.ToTable("VehicleModels");
                 });
 
-            modelBuilder.Entity("VaggouAPI.Client", b =>
-                {
-                    b.HasOne("VaggouAPI.User", "User")
-                        .WithOne("Client")
-                        .HasForeignKey("VaggouAPI.Client", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("VaggouAPI.Favorite", b =>
                 {
                     b.HasOne("VaggouAPI.Client", "Client")
@@ -553,11 +536,6 @@ namespace VaggouAPI.Migrations
             modelBuilder.Entity("VaggouAPI.PaymentMethod", b =>
                 {
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("VaggouAPI.User", b =>
-                {
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("VaggouAPI.Vehicle", b =>

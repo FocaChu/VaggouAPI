@@ -14,10 +14,10 @@ namespace VaggouAPI
 
         public string CPF { get; set; } = string.Empty;
 
-        public Guid UserId { get; set; }
+        //public Guid UserId { get; set; }
 
-        [JsonIgnore]
-        public User? User { get; set; }
+        //[JsonIgnore]
+        //public User? User { get; set; }
 
         [JsonIgnore]
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

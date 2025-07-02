@@ -8,6 +8,6 @@
 
         public string PasswordHash { get; set; }
 
-        public Client? Client { get; set; }
+        //public Client? Client { get; set; }
     }
 }
