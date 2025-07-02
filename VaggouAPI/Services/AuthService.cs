@@ -34,12 +34,12 @@ namespace VaggouAPI.Services
 
             var token = GenerateToken(user);
 
-            return "";
+            return token;
 
         }
 
 
-        private async Task<string> GenerateToken(User user)
+        private string GenerateToken(User user)
         {
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
 

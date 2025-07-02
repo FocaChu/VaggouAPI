@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using VaggouAPI.DTOs;
 using VaggouAPI.Models;
 
@@ -7,10 +8,11 @@ namespace VaggouAPI.Services
     public class UserService
     {
         private readonly Db _context;
-
-        public UserService(Db _context)
+        private readonly IMapper _mapper;
+        public UserService(Db _context, IMapper _mapper)
         {
             this._context = _context;
+            this._mapper = _mapper;
         }
 
         public async Task<List<User>> GetAllAsync()
@@ -28,14 +30,15 @@ namespace VaggouAPI.Services
 
         public async Task<User> CreateAsync(UserDto dto)
         {
-            User user = new User()
-            { 
-                Id= Guid.NewGuid(),
-                Email= dto.Email,
-                Password= dto.Password,
-                Role = dto.Role,
-                IsActive= dto.IsActive,
-            };
+            var user = _mapper.Map<User>(dto);
+            //User user = new User()
+            //{ 
+            //    Id= Guid.NewGuid(),
+            //    Email= dto.Email,
+            //    Password= dto.Password,
+            //    Role = dto.Role,
+            //    IsActive= dto.IsActive,
+            //};
 
             await _context.Users.AddAsync(user);
 
@@ -48,10 +51,11 @@ namespace VaggouAPI.Services
             var user = await _context.Users.FindAsync(id);
             if (user == null) throw new BusinessException("User Not Found");
 
-            user.Email = dto.Email;
-            user.Password = dto.Password;
-            user.Role = dto.Role;
-            user.IsActive = dto.IsActive;
+            user = _mapper.Map<User>(dto);
+            //user.Email = dto.Email;
+            //user.Password = dto.Password;
+            //user.Role = dto.Role;
+            //user.IsActive = dto.IsActive;
 
             await _context.SaveChangesAsync();
             return user;

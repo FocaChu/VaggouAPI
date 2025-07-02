@@ -1,17 +1,21 @@
 ﻿using System.Xml;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using VaggouAPI.DTOs;
+using VaggouAPI.Interfaces;
 using VaggouAPI.Models;
 
 namespace VaggouAPI.Services
 {
-    public class ClientService
+    public class ClientService:IClientService
     {
         private readonly Db _context;
+        private readonly IMapper _mapper;
 
-        public ClientService(Db _context)
+        public ClientService(Db _context, IMapper _mapper)
         {
             this._context = _context;
+            this._mapper = _mapper;
         }
 
         public async Task<List<Client>> GetAllAsync()
@@ -41,14 +45,17 @@ namespace VaggouAPI.Services
                 .FirstOrDefaultAsync(c => c.User.Id == dto.UserId);
             if (client2 != null) throw new BusinessException("User is already in use");
 
-            var client = new Client()
-            {
-                Id = Guid.NewGuid(),
-                FullName = dto.FullName,
-                Phone = dto.Phone,
-                LoyaltyPoints = dto.LoyaltyPoints,
-                User = user,
-            };
+            //primeiro o que quer e depois no que vai transformar
+            var client = _mapper.Map<Client>(dto);
+            
+            //var client = new Client()
+            //{
+            //    Id = Guid.NewGuid(),
+            //    FullName = dto.FullName,
+            //    Phone = dto.Phone,
+            //    LoyaltyPoints = dto.LoyaltyPoints,
+            //    User = user,
+            //};
             
             await _context.Clients.AddAsync(client);
 
@@ -64,10 +71,12 @@ namespace VaggouAPI.Services
             var user = await _context.Users.FindAsync(dto.UserId);
             if (user == null) throw new BusinessException("User Not Found");
 
-            client.FullName = dto.FullName;
-            client.Phone = dto.Phone;
-            client.LoyaltyPoints = dto.LoyaltyPoints;
-            client.User = user;
+            client = _mapper.Map<Client>(dto);
+
+            //client.FullName = dto.FullName;
+            //client.Phone = dto.Phone;
+            //client.LoyaltyPoints = dto.LoyaltyPoints;
+            //client.User = user;
 
             await _context.SaveChangesAsync();
             return client;

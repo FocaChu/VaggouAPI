@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VaggouAPI.DTOs;
+using VaggouAPI.Interfaces;
 using VaggouAPI.Models;
 using VaggouAPI.Services;
 
@@ -10,9 +11,9 @@ namespace VaggouAPI.Controllers
     [ApiController]
     public class ClientController : ControllerBase
     {
-        private readonly ClientService _service;
+        private readonly IClientService _service;
 
-        public ClientController(ClientService _service)
+        public ClientController(IClientService _service)
         {
             this._service = _service;
         }
