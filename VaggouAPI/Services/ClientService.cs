@@ -7,7 +7,7 @@ using VaggouAPI.Models;
 
 namespace VaggouAPI.Services
 {
-    public class ClientService:IClientService
+    public class ClientService : IClientService
     {
         private readonly Db _context;
         private readonly IMapper _mapper;
@@ -20,34 +20,34 @@ namespace VaggouAPI.Services
 
         public async Task<List<Client>> GetAllAsync()
         {
-            return await _context.Clients.Include(c=> c.User).ToListAsync();
+            return await _context.Clients.Include(c => c.User).ToListAsync();
         }
 
         public async Task<Client> GetByIdAsync(Guid id)
         {
             var client = await _context.Clients
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(c=> c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (client == null) throw new BusinessException("Client Not Found");
 
             return client;
         }
 
-        //procura se tem algum user no banco com mesmo id pra nao criar dois cliente em um user
         public async Task<Client> CreateAsync(ClientDto dto)
         {
             var user = await _context.Users.FindAsync(dto.UserId);
             if (user == null) throw new BusinessException("User Not Found");
 
+            //procura se tem algum user no banco com mesmo id pra nao criar dois cliente em um user
             var client2 = await _context.Clients
-                .Include(c =>c.User)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.User.Id == dto.UserId);
             if (client2 != null) throw new BusinessException("User is already in use");
 
             //primeiro o que quer e depois no que vai transformar
             var client = _mapper.Map<Client>(dto);
-            
+
             //var client = new Client()
             //{
             //    Id = Guid.NewGuid(),
@@ -56,7 +56,7 @@ namespace VaggouAPI.Services
             //    LoyaltyPoints = dto.LoyaltyPoints,
             //    User = user,
             //};
-            
+
             await _context.Clients.AddAsync(client);
 
             await _context.SaveChangesAsync();

@@ -11,12 +11,10 @@ namespace VaggouAPI.Services
     {
         private readonly Db _context;
         private readonly IMapper _mapper;
-        private readonly IAuthService _authService;
-        public UserService(Db _context, IMapper _mapper, IAuthService _authService)
+        public UserService(Db _context, IMapper _mapper)
         {
             this._context = _context;
             this._mapper = _mapper;
-            this._authService = _authService;
         }
 
         public async Task<List<User>> GetAllAsync()
@@ -43,8 +41,6 @@ namespace VaggouAPI.Services
             //    Role = dto.Role,
             //    IsActive= dto.IsActive,
             //};
-
-            await _authService.Register(user);
             await _context.Users.AddAsync(user);
             
             await _context.SaveChangesAsync();

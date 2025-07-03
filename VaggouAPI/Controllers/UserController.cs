@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VaggouAPI.DTOs;
 using VaggouAPI.Interfaces;
@@ -19,12 +20,14 @@ namespace VaggouAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<List<User>> GetAllAsync()
         {
             return await _service.GetAllAsync();
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<User> GetByIdAsync(Guid id)
         {
             return await _service.GetByIdAsync(id);
@@ -37,12 +40,14 @@ namespace VaggouAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<User?> UpdateAsync(Guid id, [FromBody] UserDto dto)
         {
             return await _service.UpdateAsync(id, dto);
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<bool> DeleteAsync(Guid id)
         {
             return await _service.DeleteAsync(id);

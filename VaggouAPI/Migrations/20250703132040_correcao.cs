@@ -5,7 +5,7 @@
 namespace VaggouAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class correcaoTokenAcessInDto : Migration
+    public partial class correcao : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

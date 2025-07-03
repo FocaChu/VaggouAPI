@@ -5,7 +5,6 @@ namespace VaggouAPI.Interfaces
 {
     public interface IAuthService
     {
-        Task<User> Register(User user);
-        Task<User> Login(UserDto dto);
+        Task<string> Login(UserDto dto);
     }
 }

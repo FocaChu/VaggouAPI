@@ -17,19 +17,13 @@ namespace VaggouAPI.Controllers
         {
             this._service = _service;
         }
-        [HttpPost("cadastro")]
-        public async Task<User> Register(User user)
-        {
-            User TokenAcess = await _service.Register(user);
-            return TokenAcess;
-        }
+        
 
         [HttpPost("login")]
-        [Authorize]
-        public async Task<User> Login(UserDto dto)
+        public async Task<string> Login(UserDto dto)
         {
-            User verifyAcess = await _service.Login(dto);
-            return verifyAcess;
+            var token = await _service.Login(dto);
+            return token;
         }
     }
 }

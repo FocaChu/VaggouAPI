@@ -11,8 +11,8 @@ using VaggouAPI;
 namespace VaggouAPI.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20250702223644_correcaoTokenAcessInDto")]
-    partial class correcaoTokenAcessInDto
+    [Migration("20250703132040_correcao")]
+    partial class correcao
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,10 +65,6 @@ namespace VaggouAPI.Migrations
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
-
-                    b.Property<string>("TokenAcess")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

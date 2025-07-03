@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VaggouAPI.DTOs;
 using VaggouAPI.Interfaces;
@@ -21,19 +22,12 @@ namespace VaggouAPI.Services
             this._context = _context;
         }
 
-        //Entrada:id do usuario Saida: Usuario com token de acesso
-        public async Task<User> Register(User user)
-        {
-            user.TokenAcess = GenerateToken(user);
-            return user;
-
-        }
-
         //post por padrao o get deixa no cache a senha dai todos poem ver por isso post
-        public async Task<User> Login(UserDto dto)
+        public async Task<string> Login(UserDto dto)
         {
             //crio atributo chave de acesso e taco la
-            var user = await _context.Users.FindAsync(dto.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null) throw new BusinessException("Invalid User");
 
             string email = user.Email;
             if (email == null) throw new BusinessException("Invalid Email");
@@ -41,13 +35,11 @@ namespace VaggouAPI.Services
             string password = user.Password;
             if (password == null) throw new BusinessException("Invalid Password");
 
-            return user;
+            var token = GenerateToken(user);
+            return token;
         }
 
-        //public async Task<bool> LogOut() { }
-        //public async Task<bool> DeletarConta() { }
-
-
+        
         private string GenerateToken(User user)
         {
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
