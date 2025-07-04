@@ -4,13 +4,13 @@ namespace VaggouAPI
 {
     public interface IAdressService
     {
-        Task<IEnumerable<Adress>> GetAllAsync();
+        Task<IEnumerable<Address>> GetAllAsync();
 
-        Task<Adress?> GetByIdAsync(Guid id);
+        Task<Address?> GetByIdAsync(Guid id);
 
-        Task<Adress> CreateAsync(AdressDto dto);
+        Task<Address> CreateAsync(AddressDto dto);
 
-        Task<Adress?> UpdateAsync(AdressDto dto, Guid id);
+        Task<Address?> UpdateAsync(AddressDto dto, Guid id);
 
         Task DeleteAsync(Guid id);
     }

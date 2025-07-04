@@ -1,11 +1,7 @@
-﻿using System.Text.Json.Serialization;
-
-namespace VaggouAPI
+﻿namespace VaggouAPI
 {
-    public class Adress
+    public class AddressDto
     {
-        public Guid Id { get; set; }
-
         public string Street { get; set; }
 
         public string Number { get; set; }
@@ -16,7 +12,7 @@ namespace VaggouAPI
 
         public string State { get; set; }
 
-        public string? ZipCode { get; set; }
+        public string ZipCode { get; set; }
 
         public string Country { get; set; }
 
@@ -25,8 +21,5 @@ namespace VaggouAPI
         public int Longitude { get; set; }
 
         public int Latitude { get; set; }
-
-        [JsonIgnore]
-        public ICollection<ParkingLot> ParkingLots { get; set; } = new List<ParkingLot>();
     }
 }

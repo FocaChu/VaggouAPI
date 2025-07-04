@@ -14,17 +14,18 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Adress>> GetAllAsync() =>
+        public async Task<IEnumerable<Address>> GetAllAsync() =>
             await _context.Adresses.ToListAsync();
         
 
-        public async Task<Adress?> GetByIdAsync(Guid id) =>
-            await _context.Adresses.FindAsync(id);
-        
+        public async Task<Address?> GetByIdAsync(Guid id) =>
+            await _context.Adresses.FindAsync(id)
+                ?? throw new NotFoundException("Address model not found.");
 
-        public async Task<Adress> CreateAsync(AdressDto dto)
+
+        public async Task<Address> CreateAsync(AddressDto dto)
         {
-            var created = _mapper.Map<Adress>(dto);
+            var created = _mapper.Map<Address>(dto);
 
             await _context.Adresses.AddAsync(created);
 
@@ -32,10 +33,10 @@ namespace VaggouAPI
             return created;
         }
 
-        public async Task<Adress?> UpdateAsync(AdressDto dto, Guid id)
+        public async Task<Address?> UpdateAsync(AddressDto dto, Guid id)
         {
             var updated = await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Endereço não encontrado.");
+                ?? throw new NotFoundException("Address not found.");
 
             _mapper.Map(dto, updated);
 
@@ -47,7 +48,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Endereço não encontrado para deleção.");
+                ?? throw new NotFoundException("Address not found.");
 
             _context.Adresses.Remove(entity);
 

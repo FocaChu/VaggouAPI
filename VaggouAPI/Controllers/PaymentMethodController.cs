@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace VaggouAPI
 {
@@ -19,14 +18,14 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Listando todos os metodos de pagamento.");
+            _logger.LogInformation("Listing all payment methods.");
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando metodo de pagamento por ID: {Id}", id);
+            _logger.LogInformation("Fetching payment method by ID: {Id}", id);
             return Ok(await _service.GetByIdAsync(id));
         }
 
@@ -35,13 +34,13 @@ namespace VaggouAPI
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao criar metodo de pagamento.");
+                _logger.LogWarning("Validation error when creating payment method.");
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Criando novo metodo de pagamento.");
+            _logger.LogInformation("Creating new payment method.");
             var created = await _service.CreateAsync(dto);
-            _logger.LogInformation("Metodo de pagamento criado. ID: {Id}", created.Id);
+            _logger.LogInformation("Payment method created. ID: {Id}", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -50,22 +49,22 @@ namespace VaggouAPI
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao atualizar metodo de pagamento ID: {Id}", id);
+                _logger.LogWarning("Validation error when updating payment method ID: {Id}", id);
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Atualizando metodo de pagamento ID: {Id}", id);
+            _logger.LogInformation("Updating payment method ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Metodo de pagamento atualizado. ID: {Id}", updated.Id);
+            _logger.LogInformation("Payment method updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Deletando metodo de pagamento ID: {Id}", id);
+            _logger.LogInformation("Deleting payment method ID: {Id}", id);
             await _service.DeleteAsync(id);
-            _logger.LogInformation("Metodo de pagamento deletado. ID: {Id}", id);
+            _logger.LogInformation("Payment method deleted. ID: {Id}", id);
             return NoContent();
         }
     }

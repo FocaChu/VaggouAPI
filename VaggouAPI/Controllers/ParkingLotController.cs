@@ -18,50 +18,49 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Listando todos os estacionamentos.");
+            _logger.LogInformation("Listing all parking lots.");
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando estacionamento por ID: {Id}", id);
+            _logger.LogInformation("Fetching parking lot by ID: {Id}", id);
             return Ok(await _service.GetByIdAsync(id));
         }
 
         [HttpGet("zip/{zipCode}")]
         public async Task<IActionResult> GetByZipCode(string zipCode)
         {
-            _logger.LogInformation("Buscando estacionamentos pelo CEP: {ZipCode}", zipCode);
+            _logger.LogInformation("Fetching parking lots by Zip Code: {ZipCode}", zipCode);
             return Ok(await _service.GetByAdressZipCodeAsync(zipCode));
         }
 
         [HttpGet("proximity")]
         public async Task<IActionResult> GetByProximity([FromQuery] double latitude, [FromQuery] double longitude, [FromQuery] double raio)
-
         {
-            _logger.LogInformation("Buscando por proximidade (Lat: {Latitude}, Long: {Longitude}, Raio: {Raio})", latitude, longitude, raio);
+            _logger.LogInformation("Fetching by proximity (Lat: {Latitude}, Long: {Longitude}, Radius: {Radius})", latitude, longitude, raio);
             return Ok(await _service.GetByProximityAsync(latitude, longitude, raio));
         }
 
         [HttpGet("owner/{ownerId}")]
         public async Task<IActionResult> GetByOwner(Guid ownerId)
         {
-            _logger.LogInformation("Buscando estacionamentos do dono ID: {OwnerId}", ownerId);
+            _logger.LogInformation("Fetching parking lots by owner ID: {OwnerId}", ownerId);
             return Ok(await _service.GetByOwnerIdAsync(ownerId));
         }
 
         [HttpGet("with-cover")]
         public async Task<IActionResult> GetWithCover()
         {
-            _logger.LogInformation("Buscando estacionamentos com cobertura.");
+            _logger.LogInformation("Fetching parking lots with cover.");
             return Ok(await _service.GetWithCoverAsync());
         }
 
         [HttpGet("with-pcd")]
         public async Task<IActionResult> GetWithPCDSpace()
         {
-            _logger.LogInformation("Buscando estacionamentos com vaga PCD.");
+            _logger.LogInformation("Fetching parking lots with accessible parking space.");
             return Ok(await _service.GetWithPCDSpaceAsync());
         }
 
@@ -70,13 +69,13 @@ namespace VaggouAPI
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao criar estacionamento.");
+                _logger.LogWarning("Validation error when creating parking lot.");
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Criando novo estacionamento.");
+            _logger.LogInformation("Creating new parking lot.");
             var created = await _service.CreateAsync(dto);
-            _logger.LogInformation("Estacionamento criado. ID: {Id}", created.Id);
+            _logger.LogInformation("Parking lot created. ID: {Id}", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -85,22 +84,22 @@ namespace VaggouAPI
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao atualizar estacionamento ID: {Id}", id);
+                _logger.LogWarning("Validation error when updating parking lot ID: {Id}", id);
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Atualizando estacionamento ID: {Id}", id);
+            _logger.LogInformation("Updating parking lot ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Estacionamento atualizado. ID: {Id}", updated.Id);
+            _logger.LogInformation("Parking lot updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Deletando estacionamento ID: {Id}", id);
+            _logger.LogInformation("Deleting parking lot ID: {Id}", id);
             await _service.DeleteAsync(id);
-            _logger.LogInformation("Estacionamento deletado. ID: {Id}", id);
+            _logger.LogInformation("Parking lot deleted. ID: {Id}", id);
             return NoContent();
         }
     }

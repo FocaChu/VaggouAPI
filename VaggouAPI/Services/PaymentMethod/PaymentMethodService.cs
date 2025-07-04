@@ -19,7 +19,8 @@ namespace VaggouAPI
         
 
         public async Task<PaymentMethod?> GetByIdAsync(Guid id) =>
-            await _context.PaymentMethods.FindAsync(id);
+            await _context.PaymentMethods.FindAsync(id)
+                ?? throw new NotFoundException("Payment method not found.");
 
         public async Task<PaymentMethod> CreateAsync(PaymentMethodDto dto)
         {
@@ -34,7 +35,7 @@ namespace VaggouAPI
         public async Task<PaymentMethod?> UpdateAsync(PaymentMethodDto dto, Guid id)
         {
             var updated = await _context.PaymentMethods.FindAsync(id)
-                ?? throw new NotFoundException("Metodo de pagamento não encontrado.");
+                ?? throw new NotFoundException("PaymentMethod not found.");
 
             _mapper.Map(dto, updated);
 
@@ -46,7 +47,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.PaymentMethods.FindAsync(id)
-                ?? throw new NotFoundException("Metodo de pagamento não encontrado para deleção.");
+                ?? throw new NotFoundException("PaymentMethod not found.");
 
             _context.PaymentMethods.Remove(entity);
 

@@ -18,8 +18,8 @@ namespace VaggouAPI
             await _context.ParkingSpots.ToListAsync();
 
         public async Task<ParkingSpot?> GetByIdAsync(Guid id) =>
-            await _context.ParkingSpots
-                .FirstOrDefaultAsync(ps => ps.Id == id);
+            await _context.ParkingSpots.FirstOrDefaultAsync(ps => ps.Id == id)
+                ?? throw new NotFoundException("Parking spot not found.");
 
         public async Task<IEnumerable<ParkingSpot>> GetByParkingLotIdAsync(Guid parkingLotId) =>
             await _context.ParkingSpots
@@ -30,7 +30,7 @@ namespace VaggouAPI
         public async Task<ParkingSpot> CreateAsync(ParkingSpotDto dto)
         {
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new BusinessException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             var created = _mapper.Map<ParkingSpot>(dto);
             created.ParkingLot = parkingLot;
@@ -44,10 +44,10 @@ namespace VaggouAPI
         {
             var updated = await IncludeAll()
                 .FirstOrDefaultAsync(ps => ps.Id == Id)
-                ?? throw new NotFoundException("Vaga não encontrada.");   
+                ?? throw new NotFoundException("Parking spot not found.");
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new BusinessException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             _mapper.Map(dto, updated);
             updated.ParkingLot = parkingLot;
@@ -60,7 +60,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.ParkingLots.FindAsync(id)
-                ?? throw new NotFoundException("Vaga não encontrada para deleção.");
+                ?? throw new NotFoundException("Parking spot not found.");
 
             _context.ParkingLots.Remove(entity);
             await _context.SaveChangesAsync();

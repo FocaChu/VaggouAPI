@@ -20,7 +20,7 @@ namespace VaggouAPI
         public async Task<VehicleModel> GetByIdAsync(Guid id) =>
             await _context.VehicleModels.Include(vm => vm.Vehicles)
                 .FirstOrDefaultAsync(vm => vm.Id == id)
-                ?? throw new NotFoundException("Modelo de veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle model not found.");
 
         public async Task<IEnumerable<VehicleModel>> GetByFuelTypeAsync(FuelType fuelType) =>
             await _context.VehicleModels
@@ -41,7 +41,7 @@ namespace VaggouAPI
         public async Task<VehicleModel> UpdateAsync(VehicleModelDto dto, Guid id)
         {
             var entity = await _context.VehicleModels.FindAsync(id)
-                ?? throw new NotFoundException("Modelo de veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle model not found.");
 
             _mapper.Map(dto, entity);
 
@@ -54,7 +54,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.VehicleModels.FindAsync(id)
-                ?? throw new NotFoundException("Modelo de veículo não encontrado para deleção.");
+                ?? throw new NotFoundException("Vehicle model not found.");
 
             _context.VehicleModels.Remove(entity);
             await _context.SaveChangesAsync();

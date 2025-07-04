@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace VaggouAPI
 {
@@ -8,13 +9,15 @@ namespace VaggouAPI
         {
         }
 
-        public DbSet<Adress> Adresses { get; set; }
+        public DbSet<Address> Adresses { get; set; }
 
         public DbSet<Client> Clients { get; set; }
 
         public DbSet<Favorite> Favorites { get; set; }
 
         public DbSet<MonthlyReport> MonthlyReports { get; set; }
+
+        public DbSet<MonthlyReportData> MonthlyReportDatas { get; set; }
 
         public DbSet<ParkingLot> ParkingLots { get; set; }
 
@@ -25,6 +28,8 @@ namespace VaggouAPI
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
         public DbSet<Reservation> Reservations { get; set; }
+
+        public DbSet<Review> Reviews { get; set; }
 
         public DbSet<User> Users { get; set; }
 
@@ -37,9 +42,9 @@ namespace VaggouAPI
             base.OnModelCreating(modelBuilder);
 
             // Adress → ParkingLot
-            modelBuilder.Entity<Adress>()
+            modelBuilder.Entity<Address>()
                 .HasMany(a => a.ParkingLots)
-                .WithOne(p => p.Adress)
+                .WithOne(p => p.Address)
                 .HasForeignKey(p => p.AdressId);
 
             // Client → User
@@ -75,17 +80,57 @@ namespace VaggouAPI
                 .WithMany(p => p.Favorites)
                 .HasForeignKey(f => f.ParkingLotId);
 
-            // MonthlyReport → ParkingLot
             modelBuilder.Entity<MonthlyReport>()
-                .HasOne(m => m.ParkingLot)
-                .WithMany(p => p.MonthlyReports)
-                .HasForeignKey(m => m.ParkingLotId);
+                .HasKey(r => r.Id);
+
+            modelBuilder.Entity<MonthlyReport>()
+                .HasOne(r => r.MonthlyReportData)
+                .WithOne(d => d.MonthlyReport)
+                .HasForeignKey<MonthlyReportData>(d => d.MonthlyReportId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
+            // MonthlyReportData
+            modelBuilder.Entity<MonthlyReportData>()
+                .HasKey(d => d.Id);
 
             // ParkingLot → ParkingSpot
             modelBuilder.Entity<ParkingLot>()
                 .HasMany(p => p.ParkingSpots)
                 .WithOne(s => s.ParkingLot)
                 .HasForeignKey(s => s.ParkingLotId);
+
+            modelBuilder.Entity<ParkingLot>()
+                .Property(p => p.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<ParkingLot>()
+                .Property(p => p.Address)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            // Review
+            modelBuilder.Entity<Review>()
+                .HasKey(r => r.Id);
+
+            modelBuilder.Entity<Review>()
+                .Property(r => r.Score)
+                .IsRequired();
+
+            modelBuilder.Entity<Review>()
+                .Property(r => r.Comment)
+                .HasMaxLength(500);
+
+            modelBuilder.Entity<Review>()
+                .Property(r => r.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // Relacionamento 1:N entre ParkingLot e Review
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.ParkingLot)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.ParkingLotId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // ParkingSpot → Reservation
             modelBuilder.Entity<ParkingSpot>()

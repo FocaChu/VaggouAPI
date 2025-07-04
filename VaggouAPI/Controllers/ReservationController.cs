@@ -18,21 +18,21 @@ namespace VaggouAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Listando todos as reservas.");
+            _logger.LogInformation("Listing all reservations.");
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando reserva por ID: {Id}", id);
+            _logger.LogInformation("Fetching reservation by ID: {Id}", id);
             return Ok(await _service.GetByIdAsync(id));
         }
 
         [HttpGet("month")]
         public async Task<IActionResult> GetPaymentsByMonth([FromQuery] int year, [FromQuery] int month)
         {
-            _logger.LogInformation("Buscando reserva por mês: {Mounth}", month);
+            _logger.LogInformation("Fetching reservation by month: {Month}", month);
             return Ok(await _service.GetByMonthAsync(year, month));
         }
 
@@ -41,13 +41,13 @@ namespace VaggouAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao criar reserva.");
+                _logger.LogWarning("Validation error when creating reservation.");
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Criando nova reserva.");
+            _logger.LogInformation("Creating new reservation.");
             var created = await _service.CreateAsync(dto);
-            _logger.LogInformation("Reserva criado. ID: {Id}", created.Id);
+            _logger.LogInformation("Reservation created. ID: {Id}", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -56,22 +56,22 @@ namespace VaggouAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao atualizar reserva ID: {Id}", id);
+                _logger.LogWarning("Validation error when updating reservation ID: {Id}", id);
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Atualizando reserva ID: {Id}", id);
+            _logger.LogInformation("Updating reservation ID: {Id}", id);
             var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Reserva atualizada. ID: {Id}", updated.Id);
+            _logger.LogInformation("Reservation updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Deletando reserva ID: {Id}", id);
+            _logger.LogInformation("Deleting reservation ID: {Id}", id);
             await _service.DeleteAsync(id);
-            _logger.LogInformation("Reserva deletada. ID: {Id}", id);
+            _logger.LogInformation("Reservation deleted. ID: {Id}", id);
             return NoContent();
         }
     }

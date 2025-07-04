@@ -18,7 +18,8 @@ namespace VaggouAPI
             await IncludeAll().ToListAsync();
 
         public async Task<Favorite?> GetByIdAsync(Guid id) =>
-            await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id);
+            await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id)
+                ?? throw new NotFoundException("Favorite model not found.");
 
         public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId) =>
             await IncludeAll().Where(f => f.ClientId == clientId)
@@ -27,10 +28,10 @@ namespace VaggouAPI
         public async Task<Favorite> CreateAsync(FavoriteDto dto)
         {
             var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new BusinessException("Cliente não encontrado.");
+                ?? throw new NotFoundException("Client not found.");
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new BusinessException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             var created = _mapper.Map<Favorite>(dto);
             created.Client = client;
@@ -45,13 +46,13 @@ namespace VaggouAPI
         public async Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id)
         {
             var updated = await _context.Favorites.FindAsync(id)
-                ?? throw new NotFoundException("Estacionamento favorito não encontrado.");
+                ?? throw new NotFoundException("Favorite parking lot not found.");
 
             var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new BusinessException("Cliente não encontrado.");
+                ?? throw new NotFoundException("Client not found.");
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new NotFoundException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             _mapper.Map(dto, updated);
             updated.Client = client;
@@ -65,7 +66,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.ParkingLots.FindAsync(id)
-                ?? throw new NotFoundException("Estacionamento favorito não encontrado para deleção.");
+                ?? throw new NotFoundException("Favorite parking lot not found.");
 
             _context.ParkingLots.Remove(entity);
             await _context.SaveChangesAsync();

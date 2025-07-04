@@ -17,19 +17,19 @@ namespace VaggouAPI
         public async Task<IEnumerable<ParkingLot>> GetAllAsync() =>
             await IncludeAll().ToListAsync();
 
-        public async Task<ParkingLot> GetByIdAsync(Guid id) =>
+        public async Task<ParkingLot?> GetByIdAsync(Guid id) =>
             await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id)
-                ?? throw new NotFoundException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
         public async Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode) =>
-            await IncludeAll().Where(pl => pl.Adress.ZipCode == zipCode).ToListAsync();
+            await IncludeAll().Where(pl => pl.Address.ZipCode == zipCode).ToListAsync();
 
         public async Task<IEnumerable<ParkingLot>> GetByProximityAsync(double latitude, double longitude, double raioKm) =>
             await IncludeAll()
                 .Where(pl =>
                     Math.Sqrt(
-                        Math.Pow(pl.Adress.Latitude - latitude, 2) +
-                        Math.Pow(pl.Adress.Longitude - longitude, 2)
+                        Math.Pow(pl.Address.Latitude - latitude, 2) +
+                        Math.Pow(pl.Address.Longitude - longitude, 2)
                     ) <= raioKm)
                 .ToListAsync();
 
@@ -45,13 +45,13 @@ namespace VaggouAPI
         public async Task<ParkingLot> CreateAsync(ParkingLotDto dto)
         {
             var adress = await _context.Adresses.FindAsync(dto.AdressId)
-                ?? throw new NotFoundException("Endereço não encontrado.");
+                ?? throw new NotFoundException("Addres not found.");
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Dono não encontrado.");
+                ?? throw new NotFoundException("Owner not found.");
 
             var entity = _mapper.Map<ParkingLot>(dto);
-            entity.Adress = adress;
+            entity.Address = adress;
             entity.Owner = owner;
 
             await _context.ParkingLots.AddAsync(entity);
@@ -63,16 +63,16 @@ namespace VaggouAPI
         public async Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid id)
         {
             var entity = await _context.ParkingLots.FindAsync(id)
-                ?? throw new NotFoundException("Estacionamento não encontrado.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             var adress = await _context.Adresses.FindAsync(dto.AdressId)
-                ?? throw new NotFoundException("Endereço não encontrado.");
+                ?? throw new NotFoundException("Addres not found.");
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Dono não encontrado.");
+                ?? throw new NotFoundException("Owner not found.");
 
             _mapper.Map(dto, entity);
-            entity.Adress = adress;
+            entity.Address = adress;
             entity.Owner = owner;
 
             _context.ParkingLots.Update(entity);
@@ -84,7 +84,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.ParkingLots.FindAsync(id)
-                ?? throw new NotFoundException("Estacionamento não encontrado para deleção.");
+                ?? throw new NotFoundException("Parking lot not found.");
 
             _context.ParkingLots.Remove(entity);
             await _context.SaveChangesAsync();
@@ -92,7 +92,7 @@ namespace VaggouAPI
 
         private IQueryable<ParkingLot> IncludeAll() =>
             _context.ParkingLots
-                .Include(pl => pl.Adress)
+                .Include(pl => pl.Address)
                 .Include(pl => pl.Owner)
                 .Include(pl => pl.MonthlyReports)
                 .Include(pl => pl.ParkingSpots)

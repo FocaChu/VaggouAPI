@@ -19,7 +19,8 @@ namespace VaggouAP
             await IncludeAll().ToListAsync();
 
         public async Task<Payment?> GetByIdAsync(Guid id) =>
-            await IncludeAll().FirstOrDefaultAsync(e => e.Id == id);
+            await IncludeAll().FirstOrDefaultAsync(e => e.Id == id)
+                ?? throw new NotFoundException("Payment not found.");
 
         public async Task<IEnumerable<Payment>> GetByPaymentMethodAsync(Guid paymentMethodId) =>
             await IncludeAll()
@@ -53,10 +54,10 @@ namespace VaggouAP
         public async Task<Payment?> UpdateAsync(PaymentDto dto, Guid id)
         {
             var updated = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id)
-                ?? throw new NotFoundException("Pagamento não encontrado.");
+                ?? throw new BusinessException("Payment not found.");
 
             var reservation = await _context.Reservations.FirstOrDefaultAsync(e => e.Id == dto.ReservationId)
-                ?? throw new NotFoundException("Pagamento não encontrado.");
+                ?? throw new BusinessException("Reservation not found.");
 
             _mapper.Map(dto, updated);
             updated.Reservation = reservation;
@@ -69,7 +70,7 @@ namespace VaggouAP
         public async Task DeleteAsync(Guid id)
         {
             var entity = await IncludeAll().FirstOrDefaultAsync(e => e.Id == id)
-                ?? throw new NotFoundException("Pagamento não encontrado.");
+                ?? throw new BusinessException("Payment not found.");
 
             _context.Remove(entity);
             await _context.SaveChangesAsync();

@@ -10,8 +10,8 @@ namespace VaggouAPI
             // Example: CreateMap<User, UserDto>();
 
             //Adress mapping
-            CreateMap<Adress, AdressDto>();
-            CreateMap<AdressDto, Adress>();
+            CreateMap<Address, AddressDto>();
+            CreateMap<AddressDto, Address>();
 
             CreateMap<Client, ClientDto>();
             CreateMap<ClientDto, Client>();
@@ -23,16 +23,16 @@ namespace VaggouAPI
                 .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
 
             //MonthlyReport mapping
-            CreateMap<MonthlyReport, MonthlyReportDto>()
+            CreateMap<MonthlyReportService, MonthlyReportDto>()
                 .ForMember(dest => dest.ParkingLotId, opt => opt.Ignore());
-            CreateMap<MonthlyReportDto, MonthlyReport>()
+            CreateMap<MonthlyReportDto, MonthlyReportService>()
                 .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
 
             //ParkingLot mapping
             CreateMap<ParkingLot, ParkingLotDto>();
             CreateMap<ParkingLotDto, ParkingLot>()
                 .ForMember(dest => dest.Owner, opt => opt.Ignore())
-                .ForMember(dest => dest.Adress, opt => opt.Ignore());
+                .ForMember(dest => dest.Address, opt => opt.Ignore());
 
             //ParkingSpot mapping
             CreateMap<ParkingSpot, ParkingSpotDto>();

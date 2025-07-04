@@ -19,7 +19,7 @@ namespace VaggouAPI
 
         public async Task<Vehicle> GetByIdAsync(Guid id) =>
             await IncludeAll().FirstOrDefaultAsync(v => v.Id == id)
-                ?? throw new NotFoundException("Veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle not found.");
 
         public async Task<IEnumerable<Vehicle>> GetByOwnerIdAsync(Guid ownerId) =>
             await IncludeAll().Where(v => v.OwnerId == ownerId).ToListAsync();
@@ -32,15 +32,15 @@ namespace VaggouAPI
 
         public async Task<Vehicle> GetByLicensePlateAsync(string plate) =>
             await IncludeAll().FirstOrDefaultAsync(v => v.LicensePlate == plate)
-                ?? throw new NotFoundException("Veículo com essa placa não encontrado.");
+                ?? throw new NotFoundException("Vehicle not found.");
 
         public async Task<Vehicle> CreateAsync(VehicleDto dto)
         {
             var model = await _context.VehicleModels.FindAsync(dto.VehicleModelId)
-                ?? throw new NotFoundException("Modelo de veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle model not found.");
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Proprietário não encontrado.");
+                ?? throw new NotFoundException("Client not found.");
 
             var entity = _mapper.Map<Vehicle>(dto);
             entity.VehicleModel = model;
@@ -55,13 +55,13 @@ namespace VaggouAPI
         public async Task<Vehicle> UpdateAsync(VehicleDto dto, Guid id)
         {
             var entity = await _context.Vehicles.FindAsync(id)
-                ?? throw new NotFoundException("Veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle not found.");
 
             var model = await _context.VehicleModels.FindAsync(dto.VehicleModelId)
-                ?? throw new NotFoundException("Modelo de veículo não encontrado.");
+                ?? throw new NotFoundException("Vehicle model not found.");
 
             var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Proprietário não encontrado.");
+                ?? throw new NotFoundException("Owner not found.");
 
             _mapper.Map(dto, entity);
             entity.VehicleModel = model;
@@ -76,7 +76,7 @@ namespace VaggouAPI
         public async Task DeleteAsync(Guid id)
         {
             var entity = await _context.Vehicles.FindAsync(id)
-                ?? throw new NotFoundException("Veículo não encontrado para deleção.");
+                ?? throw new NotFoundException("Vehicle not found.");
 
             _context.Vehicles.Remove(entity);
             await _context.SaveChangesAsync();

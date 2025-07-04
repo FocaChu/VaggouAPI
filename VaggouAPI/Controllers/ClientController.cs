@@ -18,14 +18,14 @@ namespace VaggouAPI
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation("Listando todos os clientes.");
+            _logger.LogInformation("Listing all clients.");
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            _logger.LogInformation("Buscando cliente por ID: {Id}", id);
+            _logger.LogInformation("Fetching client by ID: {Id}", id);
             return Ok(await _service.GetByIdAsync(id));
         }
 
@@ -34,13 +34,13 @@ namespace VaggouAPI
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Erro de validação ao criar cliente.");
+                _logger.LogWarning("Validation error when creating client.");
                 return BadRequest(ModelState);
             }
 
-            _logger.LogInformation("Criando novo cliente.");
+            _logger.LogInformation("Creating new client.");
             var created = await _service.CreateAsync(dto);
-            _logger.LogInformation("Endereço criado. ID: {Id}", created.Id);
+            _logger.LogInformation("Client created. ID: {Id}", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
     }
