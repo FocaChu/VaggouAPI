@@ -20,7 +20,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped(typeof(IAddressService), typeof(AddressService));
 builder.Services.AddScoped(typeof(IClientService), typeof(ClientService));
 builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
-builder.Services.AddScoped(typeof(IMonthlyReportService), typeof(MonthlyReport));
+builder.Services.AddScoped(typeof(IMonthlyReportService), typeof(MonthlyReportService));
 builder.Services.AddScoped(typeof(IParkingLotService), typeof(ParkingLotService));
 builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotService));
 builder.Services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
@@ -60,7 +60,7 @@ app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<AppExceptionMiddleware>();
+//app.UseMiddleware<AppExceptionMiddleware>();
 
 app.UseAuthorization();
 

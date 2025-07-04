@@ -4,7 +4,9 @@ namespace VaggouAPI
 {
     public interface IParkingLotService
     {
-        Task<IEnumerable<ParkingLot>> GetAllAsync();
+        Task<IEnumerable<ParkingLot>> GetAllByScoreAsync();
+
+        Task<IEnumerable<ParkingLot>> GetAllByProximityAsync(double latitude, double longitude);
 
         Task<ParkingLot?> GetByIdAsync(Guid id);
 

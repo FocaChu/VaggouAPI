@@ -14,8 +14,19 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ParkingLot>> GetAllAsync() =>
-            await IncludeAll().ToListAsync();
+        public async Task<IEnumerable<ParkingLot>> GetAllByScoreAsync() =>
+            await IncludeAll().OrderByDescending(pl => pl.Score).ToListAsync();
+
+        public async Task<IEnumerable<ParkingLot>> GetAllByProximityAsync(double latitude, double longitude)
+        {
+            return await IncludeAll()
+                .OrderBy(pl =>
+                    Math.Sqrt(
+                        Math.Pow(pl.Address.Latitude - latitude, 2) +
+                        Math.Pow(pl.Address.Longitude - longitude, 2)
+                    )
+                ).ToListAsync();
+        }
 
         public async Task<ParkingLot?> GetByIdAsync(Guid id) =>
             await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id)
@@ -31,16 +42,17 @@ namespace VaggouAPI
                         Math.Pow(pl.Address.Latitude - latitude, 2) +
                         Math.Pow(pl.Address.Longitude - longitude, 2)
                     ) <= raioKm)
+            .OrderByDescending(pl => pl.Score)
                 .ToListAsync();
 
         public async Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId) =>
-            await IncludeAll().Where(pl => pl.OwnerId == ownerId).ToListAsync();
+            await IncludeAll().Where(pl => pl.OwnerId == ownerId).OrderByDescending(pl => pl.Score).ToListAsync();
 
         public async Task<IEnumerable<ParkingLot>> GetWithCoverAsync() =>
-            await IncludeAll().Where(pl => pl.ParkingSpots.Any(ps => ps.IsCovered)).ToListAsync();
+            await IncludeAll().Where(pl => pl.ParkingSpots.Any(ps => ps.IsCovered)).OrderByDescending(pl => pl.Score).ToListAsync();
 
         public async Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync() =>
-            await IncludeAll().Where(pl => pl.ParkingSpots.Any(ps => ps.IsPCDSpace)).ToListAsync();
+            await IncludeAll().Where(pl => pl.ParkingSpots.Any(ps => ps.IsPCDSpace)).OrderByDescending(pl => pl.Score).ToListAsync();
 
         public async Task<ParkingLot> CreateAsync(ParkingLotDto dto)
         {

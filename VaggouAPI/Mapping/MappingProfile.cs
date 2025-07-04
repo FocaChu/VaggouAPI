@@ -23,10 +23,9 @@ namespace VaggouAPI
                 .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
 
             //MonthlyReport mapping
-            CreateMap<MonthlyReportService, MonthlyReportDto>()
+            CreateMap<MonthlyReport, MonthlyReportDto>()
                 .ForMember(dest => dest.ParkingLotId, opt => opt.Ignore());
-            CreateMap<MonthlyReportDto, MonthlyReportService>()
-                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
+            CreateMap<MonthlyReportDto, MonthlyReport>();
 
             //ParkingLot mapping
             CreateMap<ParkingLot, ParkingLotDto>();
@@ -46,6 +45,12 @@ namespace VaggouAPI
                 .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
                 .ForMember(dest => dest.ParkingSpot, opt => opt.Ignore())
                 .ForMember(dest => dest.Payment, opt => opt.Ignore());
+
+            //Review mapping
+            CreateMap<Review, ReviewDto>();
+            CreateMap<ReviewDto, Review>()
+                .ForMember(dest => dest.Client, opt => opt.Ignore())
+                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
 
             //Vehicle mapping
             CreateMap<Vehicle, VehicleDto>();

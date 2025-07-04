@@ -16,7 +16,7 @@ namespace VaggouAPI
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllByScore()
         {
             _logger.LogInformation("Listing all reviews.");
             return Ok(await _service.GetAllAsync());

@@ -31,15 +31,21 @@ namespace VaggouAPI
                 .Where(r => r.ParkingLotId == parkingLotId)
                 .FirstOrDefaultAsync();
 
-        public async Task<Review?> CreateAsync(ReviewDto review)
+        public async Task<Review?> CreateAsync(ReviewDto dto)
         {
-            var client = await _context.Clients.FindAsync(review.ClientId)
+            var client = await _context.Clients.FindAsync(dto.ClientId)
                 ?? throw new NotFoundException("Client not found.");
 
-            var parkingLot = await _context.ParkingLots.FindAsync(review.ParkingLotId)
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
 
-            var created = _mapper.Map<Review>(review);
+            if (client.Id == parkingLot.OwnerId)
+                throw new BusinessException("Client cannot review their own parking lot.");
+
+            if(dto.Score < 1) dto.Score = 1;
+            if(dto.Score > 5) dto.Score = 5;
+
+            var created = _mapper.Map<Review>(dto);
             created.Client = client;
             created.ParkingLot = parkingLot;
 
@@ -59,6 +65,12 @@ namespace VaggouAPI
 
             var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
+
+            if (client.Id == parkingLot.OwnerId)
+                throw new BusinessException("Client cannot review their own parking lot.");
+
+            if (dto.Score < 1) dto.Score = 1;
+            if (dto.Score > 5) dto.Score = 5;
 
             _mapper.Map(dto, updated);
             updated.Client = client;

@@ -23,7 +23,7 @@ namespace VaggouAPI
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
         [JsonIgnore]
-        public ICollection<MonthlyReportService> MonthlyReports { get; set; } = new List<MonthlyReportService>();
+        public ICollection<MonthlyReport> MonthlyReports { get; set; } = new List<MonthlyReport>();
 
         [JsonIgnore]
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

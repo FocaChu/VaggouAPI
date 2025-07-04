@@ -104,10 +104,10 @@ namespace VaggouAPI
                 .IsRequired()
                 .HasMaxLength(100);
 
-            modelBuilder.Entity<ParkingLot>()
-                .Property(p => p.Address)
-                .IsRequired()
-                .HasMaxLength(200);
+            modelBuilder.Entity<Address>()
+                .HasMany(a => a.ParkingLots)
+                .WithOne(p => p.Address)
+                .HasForeignKey(p => p.AdressId);
 
             // Review
             modelBuilder.Entity<Review>()
@@ -120,10 +120,6 @@ namespace VaggouAPI
             modelBuilder.Entity<Review>()
                 .Property(r => r.Comment)
                 .HasMaxLength(500);
-
-            modelBuilder.Entity<Review>()
-                .Property(r => r.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
 
             // Relacionamento 1:N entre ParkingLot e Review
             modelBuilder.Entity<Review>()

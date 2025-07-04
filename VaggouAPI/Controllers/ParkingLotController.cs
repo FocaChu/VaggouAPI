@@ -15,11 +15,18 @@ namespace VaggouAPI
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("score")]
+        public async Task<IActionResult> GetAllByScore()
         {
             _logger.LogInformation("Listing all parking lots.");
-            return Ok(await _service.GetAllAsync());
+            return Ok(await _service.GetAllByScoreAsync());
+        }
+
+        [HttpGet("proximity/{latitude}")]
+        public async Task<IActionResult> GetAllByProximity(double latitude, double longitude)
+        {
+            _logger.LogInformation("Listing all parking lots.");
+            return Ok(await _service.GetAllByProximityAsync(latitude, longitude));
         }
 
         [HttpGet("{id}")]
