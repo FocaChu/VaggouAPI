@@ -38,6 +38,45 @@ namespace VaggouAPI
 
             var parkingLot = await _context.ParkingLots.FindAsync(review.ParkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
+
+            var created = _mapper.Map<Review>(review);
+            created.Client = client;
+            created.ParkingLot = parkingLot;
+
+            await _context.Reviews.AddAsync(created);
+            await _context.SaveChangesAsync();
+
+            return created;
+        }
+
+        public async Task<Review?> UpdateAsync(ReviewDto dto, Guid id)
+        {
+            var updated = await _context.Reviews.FindAsync(id)
+                ?? throw new NotFoundException("Review not found.");
+
+            var client = await _context.Clients.FindAsync(dto.ClientId)
+                ?? throw new NotFoundException("Client not found.");
+
+            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
+                ?? throw new NotFoundException("Parking lot not found.");
+
+            _mapper.Map(dto, updated);
+            updated.Client = client;
+            updated.ParkingLot = parkingLot;
+
+            _context.Reviews.Update(updated);
+            await _context.SaveChangesAsync();
+
+            return updated;
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var entity = await _context.Reviews.FindAsync(id)
+                ?? throw new NotFoundException("Review not found.");
+
+            _context.Reviews.Remove(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

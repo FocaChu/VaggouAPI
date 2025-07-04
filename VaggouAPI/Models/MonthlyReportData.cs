@@ -4,7 +4,6 @@ namespace VaggouAPI
 {
     public class MonthlyReportData
     {
-        [Key]
         public Guid Id { get; set; } 
 
         public int TotalReservations { get; set; }
@@ -21,5 +20,4 @@ namespace VaggouAPI
 
         public MonthlyReport MonthlyReport { get; set; }
     }
-
 }

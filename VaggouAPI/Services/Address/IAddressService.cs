@@ -2,7 +2,7 @@
 
 namespace VaggouAPI
 {
-    public interface IAdressService
+    public interface IAddressService
     {
         Task<IEnumerable<Address>> GetAllAsync();
 

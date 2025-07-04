@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VaggouAPI
 {
-    public class AdressService : IAdressService
+    public class AddressService : IAddressService
     {
         private readonly Db _context;
         private readonly IMapper _mapper;
 
-        public AdressService(Db context, IMapper mapper)
+        public AddressService(Db context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

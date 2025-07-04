@@ -4,12 +4,12 @@ namespace VaggouAPI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdressController : ControllerBase
+    public class AddressController : ControllerBase
     {
-        private readonly IAdressService _service;
-        private readonly ILogger<AdressController> _logger;
+        private readonly IAddressService _service;
+        private readonly ILogger<AddressController> _logger;
 
-        public AdressController(IAdressService service, ILogger<AdressController> logger)
+        public AddressController(IAddressService service, ILogger<AddressController> logger)
         {
             _service = service;
             _logger = logger;

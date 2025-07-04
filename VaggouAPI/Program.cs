@@ -17,7 +17,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped(typeof(IAdressService), typeof(AdressService));
+builder.Services.AddScoped(typeof(IAddressService), typeof(AddressService));
 builder.Services.AddScoped(typeof(IClientService), typeof(ClientService));
 builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
 builder.Services.AddScoped(typeof(IMonthlyReportService), typeof(MonthlyReport));
@@ -26,6 +26,7 @@ builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotServic
 builder.Services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
 builder.Services.AddScoped(typeof(IPaymentMethodService), typeof(PaymentMethodService));
 builder.Services.AddScoped(typeof(IReservationService), typeof(ReservationService));
+builder.Services.AddScoped(typeof(IReviewService), typeof(ReviewService));
 builder.Services.AddScoped(typeof(IUserService), typeof(UserService));
 builder.Services.AddScoped(typeof(IVehicleService), typeof(VehicleService));
 builder.Services.AddScoped(typeof(IVehicleModelService), typeof(VehicleModelService));

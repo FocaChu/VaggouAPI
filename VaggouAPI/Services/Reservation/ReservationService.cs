@@ -47,7 +47,7 @@ namespace VaggouAPI
             );
 
             if (isOccupied)
-                throw new BusinessException("A vaga já está reservada no tempo selecionado.");
+                throw new BusinessException("The parking spot is already reserved for the selected time..");
 
             var client = await _context.Clients.FindAsync(dto.ClientId)
                 ?? throw new NotFoundException("Client not found.");
@@ -61,21 +61,21 @@ namespace VaggouAPI
             var payment = await _context.Payments.FindAsync(dto.PaymentId)
                 ?? throw new NotFoundException("Payment not found.");
 
-            var reservation = _mapper.Map<Reservation>(dto);
-            reservation.Client = client;
-            reservation.Vehicle = vehicle;
-            reservation.ParkingSpot = spot;
-            reservation.Payment = payment;
+            var created = _mapper.Map<Reservation>(dto);
+            created.Client = client;
+            created.Vehicle = vehicle;
+            created.ParkingSpot = spot;
+            created.Payment = payment;
 
-            await _context.Reservations.AddAsync(reservation);
+            await _context.Reservations.AddAsync(created);
             await _context.SaveChangesAsync();
 
-            return reservation;
+            return created;
         }
 
         public async Task<Reservation?> UpdateAsync(ReservationDto dto, Guid id)
         {
-            var reservation = await _context.Reservations.FindAsync(id)
+            var updated = await _context.Reservations.FindAsync(id)
                 ?? throw new NotFoundException("Reservation not found.");
 
             var client = await _context.Clients.FindAsync(dto.ClientId)
@@ -90,24 +90,24 @@ namespace VaggouAPI
             var payment = await _context.Payments.FindAsync(dto.PaymentId)
                 ?? throw new NotFoundException("Payment not found.");
 
-            _mapper.Map(dto, reservation);
-            reservation.Client = client;
-            reservation.Vehicle = vehicle;
-            reservation.ParkingSpot = spot;
-            reservation.Payment = payment;
+            _mapper.Map(dto, updated);
+            updated.Client = client;
+            updated.Vehicle = vehicle;
+            updated.ParkingSpot = spot;
+            updated.Payment = payment;
 
-            _context.Reservations.Update(reservation);
+            _context.Reservations.Update(updated);
             await _context.SaveChangesAsync();
 
-            return reservation;
+            return updated;
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var reservation = await _context.Reservations.FindAsync(id)
+            var entity = await _context.Reservations.FindAsync(id)
                 ?? throw new NotFoundException("Reservation not found.");
 
-            _context.Reservations.Remove(reservation);
+            _context.Reservations.Remove(entity);
             await _context.SaveChangesAsync();
         }
 
