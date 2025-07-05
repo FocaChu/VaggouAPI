@@ -4,8 +4,6 @@
     {
         public string? Name { get; set; }
 
-        public Guid AdressId { get; set; }
-
-        public Guid OwnerId { get; set; }
+        public Guid AddressId { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace VaggouAPI
 {
@@ -16,6 +18,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("score")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllByScore()
         {
             _logger.LogInformation("Listing all parking lots.");
@@ -23,6 +26,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("proximity/{latitude}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllByProximity(double latitude, double longitude)
         {
             _logger.LogInformation("Listing all parking lots.");
@@ -30,6 +34,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching parking lot by ID: {Id}", id);
@@ -37,6 +42,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("zip/{zipCode}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByZipCode(string zipCode)
         {
             _logger.LogInformation("Fetching parking lots by Zip Code: {ZipCode}", zipCode);
@@ -44,6 +50,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("proximity")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByProximity([FromQuery] double latitude, [FromQuery] double longitude, [FromQuery] double raio)
         {
             _logger.LogInformation("Fetching by proximity (Lat: {Latitude}, Long: {Longitude}, Radius: {Radius})", latitude, longitude, raio);
@@ -51,6 +58,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("owner/{ownerId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByOwner(Guid ownerId)
         {
             _logger.LogInformation("Fetching parking lots by owner ID: {OwnerId}", ownerId);
@@ -58,6 +66,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("with-cover")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetWithCover()
         {
             _logger.LogInformation("Fetching parking lots with cover.");
@@ -65,49 +74,68 @@ namespace VaggouAPI
         }
 
         [HttpGet("with-pcd")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetWithPCDSpace()
         {
             _logger.LogInformation("Fetching parking lots with accessible parking space.");
             return Ok(await _service.GetWithPCDSpaceAsync());
         }
 
+        [HttpGet("my-lots")]
+        [Authorize(Roles = "ParkingLotOwner")] 
+        public async Task<IActionResult> GetMyParkingLots()
+        {
+            var userId = GetCurrentUserId();
+            _logger.LogInformation("Fetching parking lots for owner ID: {OwnerId}", userId);
+            var parkingLots = await _service.GetMyParkingLotsAsync(userId);
+            return Ok(parkingLots);
+        }
+
         [HttpPost]
+        [Authorize] 
         public async Task<IActionResult> Create([FromBody] ParkingLotDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Validation error when creating parking lot.");
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _logger.LogInformation("Creating new parking lot.");
-            var created = await _service.CreateAsync(dto);
-            _logger.LogInformation("Parking lot created. ID: {Id}", created.Id);
+            var userId = GetCurrentUserId();
+            _logger.LogInformation("User {UserId} is creating a new parking lot.", userId);
+
+            var created = await _service.CreateAsync(dto, userId);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "ParkingLotOwner")]
         public async Task<IActionResult> Update([FromBody] ParkingLotDto dto, Guid id)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Validation error when updating parking lot ID: {Id}", id);
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _logger.LogInformation("Updating parking lot ID: {Id}", id);
-            var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Parking lot updated. ID: {Id}", updated.Id);
+            var userId = GetCurrentUserId();
+            _logger.LogInformation("User {UserId} is updating parking lot ID: {ParkingLotId}", userId, id);
+
+            var updated = await _service.UpdateAsync(dto, id, userId);
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ParkingLotOwner")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _logger.LogInformation("Deleting parking lot ID: {Id}", id);
-            await _service.DeleteAsync(id);
-            _logger.LogInformation("Parking lot deleted. ID: {Id}", id);
+            var userId = GetCurrentUserId();
+            _logger.LogInformation("User {UserId} is deleting parking lot ID: {ParkingLotId}", userId, id);
+
+            await _service.DeleteAsync(id, userId);
             return NoContent();
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedException("ID de usuário inválido no token.");
+            }
+            return userId;
         }
     }
 }

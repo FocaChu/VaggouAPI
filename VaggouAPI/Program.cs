@@ -70,6 +70,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+await SeedDatabase(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -88,3 +90,35 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+async Task SeedDatabase(IHost app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<Db>();
+            await context.Database.MigrateAsync();
+
+            // Popula os papéis
+            if (!await context.Roles.AnyAsync())
+            {
+                await context.Roles.AddRangeAsync(
+                    new Role { Name = "Admin" },
+                    new Role { Name = "ParkingLotOwner" },
+                    new Role { Name = "Consumer" }
+                );
+                await context.SaveChangesAsync();
+
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogInformation("Database seeded with initial roles.");
+            }
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
+        }
+    }
+}

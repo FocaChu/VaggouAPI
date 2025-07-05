@@ -20,10 +20,12 @@ namespace VaggouAPI
 
         Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync();
 
-        Task<ParkingLot> CreateAsync(ParkingLotDto dto);
+        Task<IEnumerable<ParkingLot>> GetMyParkingLotsAsync(Guid loggedInUserId);
 
-        Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid id);
+        Task<ParkingLot> CreateAsync(ParkingLotDto dto, Guid loggedInUserId);
 
-        Task DeleteAsync(Guid id);
+        Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid parkingLotId, Guid loggedInUserId);
+
+        Task DeleteAsync(Guid parkingLotId, Guid loggedInUserId);
     }
 }

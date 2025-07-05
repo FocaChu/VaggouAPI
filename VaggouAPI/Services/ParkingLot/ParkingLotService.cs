@@ -54,38 +54,61 @@ namespace VaggouAPI
         public async Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync() =>
             await IncludeAll().Where(pl => pl.ParkingSpots.Any(ps => ps.IsPCDSpace)).OrderByDescending(pl => pl.Score).ToListAsync();
 
-        public async Task<ParkingLot> CreateAsync(ParkingLotDto dto)
+        public async Task<IEnumerable<ParkingLot>> GetMyParkingLotsAsync(Guid loggedInUserId)
         {
-            var adress = await _context.Adresses.FindAsync(dto.AdressId)
-                ?? throw new NotFoundException("Addres not found.");
+            return await IncludeAll()
+                .Where(pl => pl.OwnerId == loggedInUserId)
+                .OrderByDescending(pl => pl.Score)
+                .ToListAsync();
+        }
 
-            var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Owner not found.");
+        public async Task<ParkingLot> CreateAsync(ParkingLotDto dto, Guid loggedInUserId)
+        {
+            // O ID do dono vem do token, não do DTO.
+            var owner = await _context.Clients.FindAsync(loggedInUserId)
+                ?? throw new NotFoundException("Client not found.");
+
+            var address = await _context.Adresses.FindAsync(dto.AddressId)
+                ?? throw new NotFoundException("Address not found.");
 
             var entity = _mapper.Map<ParkingLot>(dto);
-            entity.Address = adress;
-            entity.Owner = owner;
+            entity.Address = address;
+            entity.Owner = owner; 
+            entity.OwnerId = loggedInUserId; 
 
             await _context.ParkingLots.AddAsync(entity);
             await _context.SaveChangesAsync();
 
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == loggedInUserId);
+            if (user != null && !user.Roles.Any(r => r.Name == "ParkingLotOwner"))
+            {
+                var ownerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "ParkingLotOwner");
+                if (ownerRole != null)
+                {
+                    user.Roles.Add(ownerRole);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return entity;
         }
 
-        public async Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid id)
+        public async Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid parkingLotId, Guid loggedInUserId)
         {
-            var entity = await _context.ParkingLots.FindAsync(id)
+            var entity = await _context.ParkingLots.FindAsync(parkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
 
-            var adress = await _context.Adresses.FindAsync(dto.AdressId)
-                ?? throw new NotFoundException("Addres not found.");
+            // **VERIFICAÇÃO DE PROPRIEDADE - A MAIS IMPORTANTE**
+            if (entity.OwnerId != loggedInUserId)
+            {
+                throw new UnauthorizedException("You do not have permission to modify this parking lot.");
+            }
 
-            var owner = await _context.Clients.FindAsync(dto.OwnerId)
-                ?? throw new NotFoundException("Owner not found.");
+            var address = await _context.Adresses.FindAsync(dto.AddressId)
+                ?? throw new NotFoundException("Address not found.");
 
             _mapper.Map(dto, entity);
-            entity.Address = adress;
-            entity.Owner = owner;
+            entity.Address = address;
 
             _context.ParkingLots.Update(entity);
             await _context.SaveChangesAsync();
@@ -93,10 +116,16 @@ namespace VaggouAPI
             return entity;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid parkingLotId, Guid loggedInUserId)
         {
-            var entity = await _context.ParkingLots.FindAsync(id)
+            var entity = await _context.ParkingLots.FindAsync(parkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
+
+            // **VERIFICAÇÃO DE PROPRIEDADE**
+            if (entity.OwnerId != loggedInUserId)
+            {
+                throw new UnauthorizedException("You do not have permission to delete this parking lot.");
+            }
 
             _context.ParkingLots.Remove(entity);
             await _context.SaveChangesAsync();
@@ -106,8 +135,6 @@ namespace VaggouAPI
             _context.ParkingLots
                 .Include(pl => pl.Address)
                 .Include(pl => pl.Owner)
-                .Include(pl => pl.MonthlyReports)
-                .Include(pl => pl.ParkingSpots)
-                .Include(pl => pl.Favorites);
+                .Include(pl => pl.ParkingSpots);
     }
 }
