@@ -8,9 +8,9 @@ namespace VaggouAPI
 
         public string Brand { get; set; }
 
-        public string ModelName { get; set; }
+        public string? ModelName { get; set; }
 
-        public string Year { get; set; }
+        public string? Year { get; set; }
 
         public VehicleType VehicleType { get; set; }
 

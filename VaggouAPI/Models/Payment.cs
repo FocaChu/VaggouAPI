@@ -15,10 +15,10 @@ namespace VaggouAPI
         public Guid PaymentMethodId { get; set; }
 
         [JsonIgnore]
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
 
         [JsonIgnore]
-        public Reservation Reservation { get; set; }
+        public Reservation? Reservation { get; set; }
 
     }
 }

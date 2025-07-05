@@ -17,22 +17,22 @@ namespace VaggouAPI
         public Guid VehicleId { get; set; }
 
         [JsonIgnore]
-        public Vehicle Vehicle { get; set; }
+        public Vehicle? Vehicle { get; set; }
 
         public Guid ClientId { get; set; }
 
         [JsonIgnore]
-        public Client Client { get; set; }
+        public Client? Client { get; set; }
 
         public Guid ParkingSpotId { get; set; }
 
         [JsonIgnore]
-        public ParkingSpot ParkingSpot { get; set; }
+        public ParkingSpot? ParkingSpot { get; set; }
 
         public Guid PaymentId { get; set; }
 
         [JsonIgnore]
-        public Payment Payment { get; set; }
+        public Payment? Payment { get; set; }
 
     }
 }

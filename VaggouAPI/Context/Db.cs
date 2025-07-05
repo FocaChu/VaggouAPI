@@ -1,179 +1,123 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using VaggouAPI;
 
-namespace VaggouAPI
+public class Db : DbContext
 {
-    public class Db : DbContext
+    public Db(DbContextOptions<Db> options) : base(options)
     {
-        public Db(DbContextOptions<Db> options) : base(options)
-        {
-        }
+    }
 
-        public DbSet<Address> Adresses { get; set; }
+    // --- DbSets ---
+    public DbSet<Address> Adresses { get; set; }
+    public DbSet<Client> Clients { get; set; }
+    public DbSet<Favorite> Favorites { get; set; }
+    public DbSet<MonthlyReport> MonthlyReports { get; set; }
+    public DbSet<ParkingLot> ParkingLots { get; set; }
+    public DbSet<ParkingSpot> ParkingSpots { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentMethod> PaymentMethods { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<Review> Reviews { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<VehicleModel> VehicleModels { get; set; }
 
-        public DbSet<Client> Clients { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-        public DbSet<Favorite> Favorites { get; set; }
+        // User -> Client (!:1)
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Client)
+            .WithOne(c => c.User)
+            .HasForeignKey<Client>(c => c.Id);
 
-        public DbSet<MonthlyReport> MonthlyReports { get; set; }
+        // User -> Role (N:N)
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Roles)
+            .WithMany(r => r.Users)
+            .UsingEntity(j => j.ToTable("UserRoles")); 
 
-        public DbSet<MonthlyReportData> MonthlyReportDatas { get; set; }
+        // Client 
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Favorites)
+            .WithOne(f => f.Client)
+            .HasForeignKey(f => f.ClientId);
 
-        public DbSet<ParkingLot> ParkingLots { get; set; }
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Reservations)
+            .WithOne(r => r.Client)
+            .HasForeignKey(r => r.ClientId);
+        
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Vehicles)
+            .WithOne(v => v.Owner)
+            .HasForeignKey(v => v.OwnerId);
 
-        public DbSet<ParkingSpot> ParkingSpots { get; set; }
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Reviews)
+            .WithOne(r => r.Client)
+            .HasForeignKey(r => r.ClientId);
 
-        public DbSet<Payment> Payments { get; set; }
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.OwnedParkingLots) 
+            .WithOne(p => p.Owner)
+            .HasForeignKey(p => p.OwnerId);
 
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        // Address -> ParkingLot (1:N)
+        modelBuilder.Entity<Address>()
+            .HasMany(a => a.ParkingLots)
+            .WithOne(p => p.Address)
+            .HasForeignKey(p => p.AddressId);
 
-        public DbSet<Reservation> Reservations { get; set; }
+        // Favorite -> ParkingLot (N:1)
+        modelBuilder.Entity<Favorite>()
+            .HasOne(f => f.ParkingLot)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(f => f.ParkingLotId);
 
-        public DbSet<Review> Reviews { get; set; }
+        // MonthlyReport -> ParkingLot (N:1)
+        modelBuilder.Entity<MonthlyReport>()
+            .HasOne(r => r.ParkingLot)
+            .WithMany(p => p.MonthlyReports)
+            .HasForeignKey(r => r.ParkingLotId);
 
-        public DbSet<User> Users { get; set; }
+        // ParkingLot
+        modelBuilder.Entity<ParkingLot>()
+            .Property(p => p.Name)
+            .IsRequired()
+            .HasMaxLength(100);
 
-        public DbSet<Vehicle> Vehicles { get; set; }
+        // ParkingSpot -> Reservation (1:N)
+        modelBuilder.Entity<ParkingSpot>()
+            .HasMany(s => s.Reservations)
+            .WithOne(r => r.ParkingSpot)
+            .HasForeignKey(r => r.ParkingSpotId);
 
-        public DbSet<VehicleModel> VehicleModels { get; set; }
+        // Payment -> PaymentMethod (N:1)
+        modelBuilder.Entity<Payment>()
+            .HasOne(p => p.PaymentMethod)
+            .WithMany(m => m.Payments)
+            .HasForeignKey(p => p.PaymentMethodId);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+        // Reservation -> Payment (1:1)
+        modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.Payment)
+            .WithOne(p => p.Reservation)
+            .HasForeignKey<Payment>(p => p.Id);
 
-            // Adress → ParkingLot
-            modelBuilder.Entity<Address>()
-                .HasMany(a => a.ParkingLots)
-                .WithOne(p => p.Address)
-                .HasForeignKey(p => p.AdressId);
+        // Review -> ParkingLot (N:1)
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.ParkingLot)
+            .WithMany(p => p.Reviews)
+            .HasForeignKey(r => r.ParkingLotId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            // Client → User
-            //modelBuilder.Entity<Client>()
-            //    .HasOne(c => c.User)
-            //    .WithOne(u => u.Client)
-            //    .HasForeignKey<Client>(c => c.UserId);
-
-            // Client → Favorite, ParkingLot, Reservation, Vehicle
-            modelBuilder.Entity<Client>()
-                .HasMany(c => c.Favorites)
-                .WithOne(f => f.Client)
-                .HasForeignKey(f => f.ClientId);
-
-            modelBuilder.Entity<Client>()
-                .HasMany(c => c.ParkingLots)
-                .WithOne(p => p.Owner)
-                .HasForeignKey(p => p.OwnerId);
-
-            modelBuilder.Entity<Client>()
-                .HasMany(c => c.Reservations)
-                .WithOne(r => r.Client)
-                .HasForeignKey(r => r.ClientId);
-
-            modelBuilder.Entity<Client>()
-                .HasMany(c => c.Vehicles)
-                .WithOne(v => v.Owner)
-                .HasForeignKey(v => v.OwnerId);
-
-            // Favorite → ParkingLot
-            modelBuilder.Entity<Favorite>()
-                .HasOne(f => f.ParkingLot)
-                .WithMany(p => p.Favorites)
-                .HasForeignKey(f => f.ParkingLotId);
-
-            modelBuilder.Entity<MonthlyReport>()
-                .HasKey(r => r.Id);
-
-            modelBuilder.Entity<MonthlyReport>()
-                .HasOne(r => r.MonthlyReportData)
-                .WithOne(d => d.MonthlyReport)
-                .HasForeignKey<MonthlyReportData>(d => d.MonthlyReportId)
-                .OnDelete(DeleteBehavior.Cascade); 
-
-            // MonthlyReportData
-            modelBuilder.Entity<MonthlyReportData>()
-                .HasKey(d => d.Id);
-
-            // ParkingLot → ParkingSpot
-            modelBuilder.Entity<ParkingLot>()
-                .HasMany(p => p.ParkingSpots)
-                .WithOne(s => s.ParkingLot)
-                .HasForeignKey(s => s.ParkingLotId);
-
-            modelBuilder.Entity<ParkingLot>()
-                .Property(p => p.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            modelBuilder.Entity<Address>()
-                .HasMany(a => a.ParkingLots)
-                .WithOne(p => p.Address)
-                .HasForeignKey(p => p.AdressId);
-
-            // Review
-            modelBuilder.Entity<Review>()
-                .HasKey(r => r.Id);
-
-            modelBuilder.Entity<Review>()
-                .Property(r => r.Score)
-                .IsRequired();
-
-            modelBuilder.Entity<Review>()
-                .Property(r => r.Comment)
-                .HasMaxLength(500);
-
-            // Relacionamento 1:N entre ParkingLot e Review
-            modelBuilder.Entity<Review>()
-                .HasOne(r => r.ParkingLot)
-                .WithMany(p => p.Reviews)
-                .HasForeignKey(r => r.ParkingLotId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ParkingSpot → Reservation
-            modelBuilder.Entity<ParkingSpot>()
-                .HasMany(s => s.Reservations)
-                .WithOne(r => r.ParkingSpot)
-                .HasForeignKey(r => r.ParkingSpotId);
-
-            // Payment → PaymentMethod, Reservation
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.PaymentMethod)
-                .WithMany(m => m.Payments)
-                .HasForeignKey(p => p.PaymentMethodId);
-
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Reservation)
-                .WithOne(r => r.Payment)
-                .HasForeignKey<Reservation>(r => r.PaymentId)
-                .IsRequired();
-
-            // Reservation → Client, Vehicle, ParkingSpot, Payment
-            modelBuilder.Entity<Reservation>()
-                .HasOne(r => r.Client)
-                .WithMany(c => c.Reservations)
-                .HasForeignKey(r => r.ClientId);
-
-            modelBuilder.Entity<Reservation>()
-                .HasOne(r => r.Vehicle)
-                .WithMany(v => v.Reservations)
-                .HasForeignKey(r => r.VehicleId);
-
-            modelBuilder.Entity<Reservation>()
-                .HasOne(r => r.ParkingSpot)
-                .WithMany(s => s.Reservations)
-                .HasForeignKey(r => r.ParkingSpotId);
-
-            // Vehicle → VehicleModel
-            modelBuilder.Entity<Vehicle>()
-                .HasOne(v => v.VehicleModel)
-                .WithMany(m => m.Vehicles)
-                .HasForeignKey(v => v.VehicleModelId);
-
-            // Vehicle → Client
-            modelBuilder.Entity<Vehicle>()
-                .HasOne(v => v.Owner)
-                .WithMany(c => c.Vehicles)
-                .HasForeignKey(v => v.OwnerId);
-        }
-
+        // Vehicle -> VehicleModel (N:1)
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.VehicleModel)
+            .WithMany(m => m.Vehicles)
+            .HasForeignKey(v => v.VehicleModelId);
     }
 }

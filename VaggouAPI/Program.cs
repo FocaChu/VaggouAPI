@@ -1,68 +1,89 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
-using VaggouAP;
 using VaggouAPI;
 using VaggouAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to th
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped(typeof(IAddressService), typeof(AddressService));
-builder.Services.AddScoped(typeof(IClientService), typeof(ClientService));
-builder.Services.AddScoped(typeof(IFavoriteService), typeof(FavoriteService));
-builder.Services.AddScoped(typeof(IMonthlyReportService), typeof(MonthlyReportService));
-builder.Services.AddScoped(typeof(IParkingLotService), typeof(ParkingLotService));
-builder.Services.AddScoped(typeof(IParkingSpotService), typeof(ParkingSpotService));
-builder.Services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
-builder.Services.AddScoped(typeof(IPaymentMethodService), typeof(PaymentMethodService));
-builder.Services.AddScoped(typeof(IReservationService), typeof(ReservationService));
-builder.Services.AddScoped(typeof(IReviewService), typeof(ReviewService));
-builder.Services.AddScoped(typeof(IUserService), typeof(UserService));
-builder.Services.AddScoped(typeof(IVehicleService), typeof(VehicleService));
-builder.Services.AddScoped(typeof(IVehicleModelService), typeof(VehicleModelService));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
 
 var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
 builder.Services.AddDbContext<Db>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IMonthlyReportService, MonthlyReportService>();
+builder.Services.AddScoped<IParkingLotService, ParkingLotService>();
+builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IUserService, UserService>(); 
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IVehicleModelService, VehicleModelService>();
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") 
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAngular");
-
 app.UseHttpsRedirection();
 
-//app.UseMiddleware<AppExceptionMiddleware>();
+app.UseCors("AllowAngular");
 
-app.UseAuthorization();
+app.UseMiddleware<AppExceptionMiddleware>();
+
+app.UseAuthentication(); 
+app.UseAuthorization();  
 
 app.MapControllers();
 

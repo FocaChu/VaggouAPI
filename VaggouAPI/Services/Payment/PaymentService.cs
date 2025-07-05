@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using VaggouAPI;
 
-namespace VaggouAP
+namespace VaggouAPI
 {
     public class PaymentService : IPaymentService
     {

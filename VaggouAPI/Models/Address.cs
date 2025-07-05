@@ -22,9 +22,9 @@ namespace VaggouAPI
 
         public string Complement { get; set; }
 
-        public int Longitude { get; set; }
+        public double Longitude { get; set; }
 
-        public int Latitude { get; set; }
+        public double Latitude { get; set; }
 
         [JsonIgnore]
         public ICollection<ParkingLot> ParkingLots { get; set; } = new List<ParkingLot>();

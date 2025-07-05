@@ -18,7 +18,7 @@ namespace VaggouAPI
         public Guid OwnerId { get; set; }
 
         [JsonIgnore]
-        public Client Owner { get; set; }
+        public Client? Owner { get; set; }
 
         [JsonIgnore]
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

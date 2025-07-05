@@ -15,11 +15,11 @@ namespace VaggouAPI
         public Guid ClientId { get; set; }
 
         [JsonIgnore]
-        public Client Client { get; set; }
+        public Client? Client { get; set; }
 
         public Guid ParkingLotId { get; set; }
 
         [JsonIgnore]
-        public ParkingLot ParkingLot { get; set; }
+        public ParkingLot? ParkingLot { get; set; }
     }
 }
