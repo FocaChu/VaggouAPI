@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using VaggouAPI.DTOs.ParkingLot;
 
 namespace VaggouAPI
 {

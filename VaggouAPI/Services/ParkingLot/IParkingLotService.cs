@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using VaggouAPI.DTOs.ParkingLot;
-
-namespace VaggouAPI
+﻿namespace VaggouAPI
 {
     public interface IParkingLotService
     {

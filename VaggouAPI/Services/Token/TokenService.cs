@@ -1,5 +1,4 @@
-﻿// Em uma pasta Services
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -33,7 +32,7 @@ namespace VaggouAPI
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
-            var expires = DateTime.UtcNow.AddHours(8); // Por exemplo, 8 horas
+            var expires = DateTime.UtcNow.AddHours(8);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

@@ -24,7 +24,7 @@ namespace VaggouAPI
         {
             if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
             {
-                return BadRequest("Este email já está em uso.");
+                return BadRequest("This email is already in use.");
             }
 
             var user = new User
@@ -45,7 +45,7 @@ namespace VaggouAPI
             };
 
             var consumerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Consumer");
-            if (consumerRole == null) { return StatusCode(500, "Role 'Consumer' não encontrada."); }
+            if (consumerRole == null) { return StatusCode(500, "Role 'Consumer' not found."); }
             user.Roles.Add(consumerRole);
 
             // 6. Salvar no banco
@@ -53,7 +53,7 @@ namespace VaggouAPI
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 
-            return Ok("Usuário registrado com sucesso.");
+            return Ok("User registered successfully.");
         }
 
         [HttpPost("login")]
@@ -65,13 +65,13 @@ namespace VaggouAPI
 
             if (user == null)
             {
-                return Unauthorized("Email ou senha inválidos."); 
+                return Unauthorized("Invalid email or password."); 
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
             if (result == PasswordVerificationResult.Failed)
             {
-                return Unauthorized("Email ou senha inválidos.");
+                return Unauthorized("Invalid email or password.");
             }
 
             var token = _tokenService.GenerateToken(user);

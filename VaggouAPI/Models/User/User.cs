@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace VaggouAPI
+﻿namespace VaggouAPI
 {
     public class User
     {

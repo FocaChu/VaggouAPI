@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using VaggouAPI.DTOs.ParkingLot;
 
 namespace VaggouAPI
 {
