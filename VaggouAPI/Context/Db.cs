@@ -65,6 +65,12 @@ public class Db : DbContext
             .WithOne(p => p.Owner)
             .HasForeignKey(p => p.OwnerId);
 
+        // Client -> Image (1:1)
+        modelBuilder.Entity<Client>()
+            .HasOne(c => c.ProfileImage)
+            .WithOne() 
+            .HasForeignKey<Client>(c => c.ProfileImageId);
+
         // Address -> ParkingLot (1:N)
         modelBuilder.Entity<Address>()
             .HasMany(a => a.ParkingLots)
@@ -88,6 +94,13 @@ public class Db : DbContext
             .Property(p => p.Name)
             .IsRequired()
             .HasMaxLength(100);
+
+        // ParkingLot -> Image (1:N)
+        modelBuilder.Entity<ParkingLot>()
+            .HasMany(p => p.Images)
+            .WithOne(i => i.ParkingLot)
+            .HasForeignKey(i => i.ParkingLotId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // ParkingSpot -> Reservation (1:N)
         modelBuilder.Entity<ParkingSpot>()
@@ -119,5 +132,11 @@ public class Db : DbContext
             .HasOne(v => v.VehicleModel)
             .WithMany(m => m.Vehicles)
             .HasForeignKey(v => v.VehicleModelId);
+
+        // Vehicle -> Image (1:1)
+        modelBuilder.Entity<Vehicle>()
+            .HasOne(v => v.VehicleImage)
+            .WithOne()
+            .HasForeignKey<Vehicle>(v => v.VehicleImageId);
     }
 }

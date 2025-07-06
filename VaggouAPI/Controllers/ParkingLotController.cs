@@ -9,11 +9,13 @@ namespace VaggouAPI
     public class ParkingLotsController : ControllerBase
     {
         private readonly IParkingLotService _service;
+        private readonly ITokenService _tokenService; 
         private readonly ILogger<ParkingLotsController> _logger;
 
-        public ParkingLotsController(IParkingLotService service, ILogger<ParkingLotsController> logger)
+        public ParkingLotsController(IParkingLotService service, ITokenService tokenService, ILogger<ParkingLotsController> logger)
         {
             _service = service;
+            _tokenService = tokenService; 
             _logger = logger;
         }
 
@@ -92,7 +94,7 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        [Authorize] 
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] ParkingLotDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -100,8 +102,22 @@ namespace VaggouAPI
             var userId = GetCurrentUserId();
             _logger.LogInformation("User {UserId} is creating a new parking lot.", userId);
 
-            var created = await _service.CreateAsync(dto, userId);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var (createdParkingLot, updatedUser, roleWasAdded) = await _service.CreateAsync(dto, userId);
+
+            string? newToken = null;
+            if (roleWasAdded)
+            {
+                _logger.LogInformation("User {UserId} was granted 'ParkingLotOwner' role. Generating new token.", userId);
+                newToken = _tokenService.GenerateToken(updatedUser);
+            }
+
+            var response = new CreateParkingLotResponseDto
+            {
+                CreatedParkingLot = createdParkingLot,
+                NewToken = newToken
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdParkingLot.Id }, response);
         }
 
         [HttpPut("{id}")]

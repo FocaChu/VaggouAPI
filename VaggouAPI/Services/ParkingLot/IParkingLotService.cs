@@ -22,7 +22,7 @@ namespace VaggouAPI
 
         Task<IEnumerable<ParkingLot>> GetMyParkingLotsAsync(Guid loggedInUserId);
 
-        Task<ParkingLot> CreateAsync(ParkingLotDto dto, Guid loggedInUserId);
+        Task<(ParkingLot parkingLot, User updatedUser, bool roleWasAdded)> CreateAsync(ParkingLotDto dto, Guid loggedInUserId);
 
         Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid parkingLotId, Guid loggedInUserId);
 

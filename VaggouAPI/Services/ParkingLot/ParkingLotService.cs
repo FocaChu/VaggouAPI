@@ -62,9 +62,9 @@ namespace VaggouAPI
                 .ToListAsync();
         }
 
-        public async Task<ParkingLot> CreateAsync(ParkingLotDto dto, Guid loggedInUserId)
+        public async Task<(ParkingLot parkingLot, User updatedUser, bool roleWasAdded)> 
+        CreateAsync(ParkingLotDto dto, Guid loggedInUserId)
         {
-            // O ID do dono vem do token, não do DTO.
             var owner = await _context.Clients.FindAsync(loggedInUserId)
                 ?? throw new NotFoundException("Client not found.");
 
@@ -73,24 +73,27 @@ namespace VaggouAPI
 
             var entity = _mapper.Map<ParkingLot>(dto);
             entity.Address = address;
-            entity.Owner = owner; 
-            entity.OwnerId = loggedInUserId; 
+            entity.Owner = owner;
+            entity.OwnerId = loggedInUserId;
 
             await _context.ParkingLots.AddAsync(entity);
-            await _context.SaveChangesAsync();
 
+            bool roleWasAdded = false;
             var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == loggedInUserId);
+
             if (user != null && !user.Roles.Any(r => r.Name == "ParkingLotOwner"))
             {
                 var ownerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "ParkingLotOwner");
                 if (ownerRole != null)
                 {
                     user.Roles.Add(ownerRole);
-                    await _context.SaveChangesAsync();
+                    roleWasAdded = true;
                 }
             }
 
-            return entity;
+            await _context.SaveChangesAsync();
+
+            return (entity, user, roleWasAdded);
         }
 
         public async Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid parkingLotId, Guid loggedInUserId)

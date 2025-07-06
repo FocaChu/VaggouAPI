@@ -50,6 +50,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>(); 
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IVehicleModelService, VehicleModelService>();
@@ -84,7 +85,7 @@ app.UseCors("AllowAngular");
 
 app.UseMiddleware<AppExceptionMiddleware>();
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();  
 
 app.MapControllers();

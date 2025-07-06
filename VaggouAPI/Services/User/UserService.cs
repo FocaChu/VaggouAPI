@@ -58,6 +58,13 @@ namespace VaggouAPI
             return user;
         }
 
+        public async Task<User?> GetByIdWithRolesAsync(Guid userId)
+        {
+            return await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
         public async Task UpdateUserRolesAsync(Guid id, UpdateUserRolesDto dto)
         {
             var user = await _context.Users

@@ -10,6 +10,10 @@ namespace VaggouAPI
 
         public bool IsPreRegistered { get; set; }
 
+        public Guid VehicleImageId { get; set; }    
+
+        public Image? VehicleImage { get; set; }
+
         public Guid VehicleModelId { get; set; }
 
         [JsonIgnore]
