@@ -11,6 +11,7 @@ public class Db : DbContext
     public DbSet<Address> Adresses { get; set; }
     public DbSet<Client> Clients { get; set; }
     public DbSet<Favorite> Favorites { get; set; }
+    public DbSet<Image> Images { get; set; }
     public DbSet<MonthlyReport> MonthlyReports { get; set; }
     public DbSet<ParkingLot> ParkingLots { get; set; }
     public DbSet<ParkingSpot> ParkingSpots { get; set; }

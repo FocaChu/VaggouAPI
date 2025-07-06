@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VaggouAPI.DTOs.ParkingLot;
 
 namespace VaggouAPI
 {

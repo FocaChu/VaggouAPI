@@ -1,4 +1,4 @@
-﻿namespace VaggouAPI
+﻿namespace VaggouAPI.DTOs.ParkingLot
 {
     public class ParkingLotDto
     {
