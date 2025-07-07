@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using VaggouAPI.DTOs.ParkingLot;
 
 namespace VaggouAPI
 {
