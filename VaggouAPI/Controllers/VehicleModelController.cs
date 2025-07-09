@@ -19,14 +19,20 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Listing all vehicle models.");
-            return Ok(await _service.GetAllAsync());
+
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching vehicle model by ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("fuel-type/{fuelType}")]

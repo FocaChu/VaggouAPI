@@ -20,7 +20,7 @@ namespace VaggouAPI
 
         public async Task<Address?> GetByIdAsync(Guid id) =>
             await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Address model not found.");
+                ?? throw new NotFoundException($"Address with Id: {id} not found.");
 
 
         public async Task<Address> CreateAsync(AddressDto dto)

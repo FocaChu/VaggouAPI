@@ -19,21 +19,30 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Listing all parking spots.");
-            return Ok(await _service.GetAllAsync());
+
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching parking spot by ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("parkingLot/{id}")]
         public async Task<IActionResult> GetByParkingLotId(Guid id)
         {
             _logger.LogInformation("Fetching parking spots in parking lot with ID: {Id}", id);
-            return Ok(await _service.GetByParkingLotIdAsync(id));
+
+            var result = await _service.GetByParkingLotIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpPost]

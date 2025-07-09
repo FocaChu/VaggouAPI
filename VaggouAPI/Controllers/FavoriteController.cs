@@ -19,21 +19,28 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Listing all favorites.");
-            return Ok(await _service.GetAllAsync());
+            var result = await _service.GetAllAsync();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching favorite by ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("client/{clientId}")]
         public async Task<IActionResult> GetByClientId(Guid clientId)
         {
             _logger.LogInformation("Fetching favorite by Client ID: {ClientId}", clientId);
-            return Ok(await _service.GetByClientIdAsync(clientId));
+
+            var result = await _service.GetByClientIdAsync(clientId);
+
+            return Ok(result);
         }
 
         [HttpPost]

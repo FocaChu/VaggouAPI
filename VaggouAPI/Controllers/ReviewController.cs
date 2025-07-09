@@ -19,23 +19,20 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAllByScore()
         {
             _logger.LogInformation("Listing all reviews.");
-            return Ok(await _service.GetAllAsync());
+
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching review by ID: {Id}", id);
-            try
-            {
-                var review = await _service.GetByIdAsync(id);
-                return Ok(review);
-            }
-            catch (NotFoundException ex)
-            {
-                _logger.LogWarning("Review with ID {Id} not found: {Message}", id, ex.Message);
-                return NotFound(ex.Message);
-            }
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("client/{clientId}")]

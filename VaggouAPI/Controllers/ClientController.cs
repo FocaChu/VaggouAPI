@@ -26,8 +26,8 @@ namespace VaggouAPI
             var userId = GetCurrentUserId();
             _logger.LogInformation("User {UserId} is fetching their profile.", userId);
 
-            var profile = await _clientService.GetMyProfileAsync(userId);
-            return Ok(profile);
+            var result = await _clientService.GetMyProfileAsync(userId);
+            return Ok(result);
         }
 
         [HttpPut("profile")]
@@ -44,8 +44,8 @@ namespace VaggouAPI
             var userId = GetCurrentUserId();
             _logger.LogInformation("User {UserId} is updating their profile.", userId);
 
-            var updatedProfile = await _clientService.UpdateMyProfileAsync(userId, dto);
-            return Ok(updatedProfile);
+            var result = await _clientService.UpdateMyProfileAsync(userId, dto);
+            return Ok(result);
         }
 
         private Guid GetCurrentUserId()

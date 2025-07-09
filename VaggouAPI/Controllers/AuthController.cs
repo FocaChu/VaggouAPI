@@ -22,7 +22,8 @@ namespace VaggouAPI
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             _logger.LogInformation("Registering user.");
-            return Ok(await _service.RegisterAsync(registerDto));
+            var result = await _service.RegisterAsync(registerDto);
+            return Ok(result);
         }
 
         [HttpPost("login")]
@@ -31,7 +32,8 @@ namespace VaggouAPI
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             _logger.LogInformation("Login user.");
-            return Ok(await _service.Login(loginDto));
+            var result = await _service.Login(loginDto);
+            return Ok(result);
         }
     }
 }

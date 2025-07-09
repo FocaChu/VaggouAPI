@@ -24,7 +24,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAllByScore()
         {
             _logger.LogInformation("Listing all parking lots.");
-            return Ok(await _service.GetAllByScoreAsync());
+
+            var result = await _service.GetAllByScoreAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("proximity/{latitude}")]
@@ -32,7 +35,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAllByProximity(double latitude, double longitude)
         {
             _logger.LogInformation("Listing all parking lots.");
-            return Ok(await _service.GetAllByProximityAsync(latitude, longitude));
+
+            var result = await _service.GetAllByProximityAsync(latitude, longitude);
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -40,7 +46,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching parking lot by ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("zip/{zipCode}")]
@@ -48,7 +57,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetByZipCode(string zipCode)
         {
             _logger.LogInformation("Fetching parking lots by Zip Code: {ZipCode}", zipCode);
-            return Ok(await _service.GetByAdressZipCodeAsync(zipCode));
+
+            var result = await _service.GetByAdressZipCodeAsync(zipCode);
+
+            return Ok(result);
         }
 
         [HttpGet("proximity")]
@@ -56,7 +68,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetByProximity([FromQuery] double latitude, [FromQuery] double longitude, [FromQuery] double raio)
         {
             _logger.LogInformation("Fetching by proximity (Lat: {Latitude}, Long: {Longitude}, Radius: {Radius})", latitude, longitude, raio);
-            return Ok(await _service.GetByProximityAsync(latitude, longitude, raio));
+            
+            var result = await _service.GetByProximityAsync(latitude, longitude, raio);
+
+            return Ok(result);
         }
 
         [HttpGet("owner/{ownerId}")]
@@ -64,7 +79,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetByOwner(Guid ownerId)
         {
             _logger.LogInformation("Fetching parking lots by owner ID: {OwnerId}", ownerId);
-            return Ok(await _service.GetByOwnerIdAsync(ownerId));
+
+            var result = await _service.GetByOwnerIdAsync(ownerId);
+
+            return Ok(result);
         }
 
         [HttpGet("with-cover")]
@@ -72,7 +90,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetWithCover()
         {
             _logger.LogInformation("Fetching parking lots with cover.");
-            return Ok(await _service.GetWithCoverAsync());
+
+            var result = await _service.GetWithCoverAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("with-pcd")]
@@ -80,7 +101,10 @@ namespace VaggouAPI
         public async Task<IActionResult> GetWithPCDSpace()
         {
             _logger.LogInformation("Fetching parking lots with accessible parking space.");
-            return Ok(await _service.GetWithPCDSpaceAsync());
+
+            var result = await _service.GetWithPCDSpaceAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("my-lots")]
@@ -89,8 +113,10 @@ namespace VaggouAPI
         {
             var userId = GetCurrentUserId();
             _logger.LogInformation("Fetching parking lots for owner ID: {OwnerId}", userId);
-            var parkingLots = await _service.GetMyParkingLotsAsync(userId);
-            return Ok(parkingLots);
+
+            var result = await _service.GetMyParkingLotsAsync(userId);
+
+            return Ok(result);
         }
 
         [HttpPost]

@@ -19,28 +19,40 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Requested listing of all payments.");
-            return Ok(_service.GetAllAsync());
+
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching payment with ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("paymentMethod/{paymentMethodId}")]
         public async Task<IActionResult> GetByZipCode(Guid paymentMethodId)
         {
             _logger.LogInformation("Fetching payments by payment method: {PaymentMethod}", paymentMethodId);
-            return Ok(await _service.GetByPaymentMethodAsync(paymentMethodId));
+
+            var result = await _service.GetByPaymentMethodAsync(paymentMethodId);
+
+            return Ok(result);
         }
 
         [HttpGet("month")]
         public async Task<IActionResult> GetPaymentsByMonth([FromQuery] int year, [FromQuery] int month)
         {
             _logger.LogInformation("Fetching payments by month: {Month}", month);
-            return Ok(await _service.GetByMonthAsync(year, month));
+
+            var result = await _service.GetByMonthAsync(year, month);
+
+            return Ok(result);
         }
 
         [HttpPost]

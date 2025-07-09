@@ -22,7 +22,9 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAllUsers()
         {
             _logger.LogInformation("Admin user is fetching a list of all users.");
+
             var users = await _userService.GetAllUsersAsync();
+
             return Ok(users);
         }
 
@@ -32,7 +34,9 @@ namespace VaggouAPI
         public async Task<IActionResult> GetUserById(Guid id)
         {
             _logger.LogInformation("Admin user is fetching details for user ID: {UserId}", id);
+
             var user = await _userService.GetUserByIdAsync(id);
+
             return Ok(user);
         }
 

@@ -19,42 +19,60 @@ namespace VaggouAPI
         public async Task<IActionResult> GetAll()
         {
             _logger.LogInformation("Listing all vehicles.");
-            return Ok(await _service.GetAllAsync());
+
+            var result = await _service.GetAllAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             _logger.LogInformation("Fetching vehicle by ID: {Id}", id);
-            return Ok(await _service.GetByIdAsync(id));
+
+            var result = await _service.GetByIdAsync(id);
+
+            return Ok(result);
         }
 
         [HttpGet("owner/{ownerId}")]
         public async Task<IActionResult> GetByOwner(Guid ownerId)
         {
             _logger.LogInformation("Fetching vehicles by owner ID: {OwnerId}", ownerId);
-            return Ok(await _service.GetByOwnerIdAsync(ownerId));
+
+            var result = await _service.GetByOwnerIdAsync(ownerId);
+
+            return Ok(result);
         }
 
         [HttpGet("model/{modelId}")]
         public async Task<IActionResult> GetByModel(Guid modelId)
         {
             _logger.LogInformation("Fetching vehicles by model ID: {ModelId}", modelId);
-            return Ok(await _service.GetByModelIdAsync(modelId));
+
+            var result = await _service.GetByModelIdAsync(modelId);
+
+            return Ok(result);
         }
 
         [HttpGet("pre-registered")]
         public async Task<IActionResult> GetPreRegistered()
         {
-            _logger.LogInformation("Fetching pre-registered vehicles.");
-            return Ok(await _service.GetPreRegisteredAsync());
+            _logger.LogInformation("Fetching pre-registered vehicles."); 
+            
+            var result = await _service.GetPreRegisteredAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("plate/{plate}")]
         public async Task<IActionResult> GetByLicensePlate(string plate)
         {
             _logger.LogInformation("Fetching vehicle by license plate: {Plate}", plate);
-            return Ok(await _service.GetByLicensePlateAsync(plate));
+
+            var result = await _service.GetPreRegisteredAsync();
+
+            return Ok(result);
         }
 
         [HttpPost]
