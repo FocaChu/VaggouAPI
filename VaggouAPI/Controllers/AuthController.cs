@@ -16,7 +16,8 @@ namespace VaggouAPI
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        [RequestSizeLimit(10 * 1024 * 1024)]
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

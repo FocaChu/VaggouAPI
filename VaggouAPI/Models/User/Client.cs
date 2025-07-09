@@ -12,8 +12,9 @@ namespace VaggouAPI
 
         public string CPF { get; set; }
 
-        public Guid ProfileImageId { get; set; }
+        public Guid? ProfileImageId { get; set; }
 
+        [JsonIgnore]
         public Image? ProfileImage { get; set; }
 
         [JsonIgnore]

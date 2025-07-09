@@ -85,7 +85,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAngular");
 
-app.UseMiddleware<AppExceptionMiddleware>();
+//app.UseMiddleware<AppExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();  

@@ -6,13 +6,13 @@ namespace VaggouAPI
     {
         public Guid Id { get; set; }
 
-        public string LicensePlate { get; set; }
+        public string? LicensePlate { get; set; }
 
         public bool IsPreRegistered { get; set; }
 
         public Guid VehicleImageId { get; set; }    
 
-        public Image? VehicleImage { get; set; }
+        public Image Image { get; set; }
 
         public Guid VehicleModelId { get; set; }
 

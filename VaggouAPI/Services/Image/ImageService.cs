@@ -24,13 +24,19 @@ namespace VaggouAPI
             if (parkingLot.OwnerId != loggedInUserId)
                 throw new UnauthorizedException("You do not have permission to manage this parking lot.");
 
-            // Para tipos de imagem únicos, substitui a existente.
             if (imageType == ImageType.ParkingLotIcon || imageType == ImageType.ParkingLotBanner)
             {
                 await ReplaceSingleImageAsync(parkingLotId, null, null, imageType);
             }
 
             return await CreateImageEntityAsync(file, imageType, parkingLotId, null, null);
+        }
+
+        public async Task<Image> CreateClientProfileImageAsync(IFormFile file, Guid clientId)
+        {
+            ValidateFile(file);
+
+            return await CreateImageEntityAsync(file, ImageType.ClientProfile, null, clientId, null);
         }
 
         public async Task<Image> UploadClientProfileImageAsync(IFormFile file, Guid loggedInUserId)
@@ -40,23 +46,18 @@ namespace VaggouAPI
             var client = await _context.Clients.FindAsync(loggedInUserId)
                 ?? throw new NotFoundException("Client not found.");
 
-            // Substitui a foto de perfil existente.
             await ReplaceSingleImageAsync(null, loggedInUserId, null, ImageType.ClientProfile);
 
             return await CreateImageEntityAsync(file, ImageType.ClientProfile, null, loggedInUserId, null);
         }
 
-        public async Task<Image> UploadVehicleImageAsync(Guid vehicleId, IFormFile file, Guid loggedInUserId)
+        public async Task<Image> UploadVehicleImageAsync(Guid vehicleId, IFormFile file)
         {
             ValidateFile(file);
 
             var vehicle = await _context.Vehicles.FindAsync(vehicleId)
                 ?? throw new NotFoundException("vehicle not found.");
 
-            if (vehicle.OwnerId != loggedInUserId)
-                throw new UnauthorizedException("You do not have permission to manage this vehicle.");
-
-            // Substitui a imagem do veículo existente.
             await ReplaceSingleImageAsync(null, null, vehicleId, ImageType.VehicleImage);
 
             return await CreateImageEntityAsync(file, ImageType.VehicleImage, null, null, vehicleId);
@@ -85,7 +86,6 @@ namespace VaggouAPI
             var image = await _context.Images.FindAsync(imageId)
                 ?? throw new NotFoundException("Image not found.");
 
-            // Validação de permissão
             bool hasPermission = false;
             if (image.ParkingLotId.HasValue)
             {

@@ -66,11 +66,12 @@ public class Db : DbContext
             .WithOne(p => p.Owner)
             .HasForeignKey(p => p.OwnerId);
 
-        // Client -> Image (1:1)
+        // Client -> ProfileImage (1:1)
         modelBuilder.Entity<Client>()
             .HasOne(c => c.ProfileImage)
-            .WithOne() 
-            .HasForeignKey<Client>(c => c.ProfileImageId);
+            .WithOne(i => i.Client)
+            .HasForeignKey<Image>(i => i.ClientId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Address -> ParkingLot (1:N)
         modelBuilder.Entity<Address>()
@@ -136,8 +137,10 @@ public class Db : DbContext
 
         // Vehicle -> Image (1:1)
         modelBuilder.Entity<Vehicle>()
-            .HasOne(v => v.VehicleImage)
-            .WithOne()
-            .HasForeignKey<Vehicle>(v => v.VehicleImageId);
+            .HasOne(c => c.Image)
+            .WithOne(i => i.Vehicle)
+            .HasForeignKey<Image>(i => i.VehicleId)
+            .OnDelete(DeleteBehavior.SetNull);
+
     }
 }

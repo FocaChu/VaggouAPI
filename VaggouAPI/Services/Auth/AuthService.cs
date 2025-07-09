@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using System.Runtime.InteropServices;
 
 namespace VaggouAPI
 {
@@ -16,6 +17,7 @@ namespace VaggouAPI
             _tokenService = tokenService;
             _passwordHasher = new PasswordHasher<User>();
         }
+
         public async Task<string> RegisterAsync(RegisterDto registerDto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
