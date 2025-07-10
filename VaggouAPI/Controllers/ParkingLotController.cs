@@ -108,7 +108,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("my-lots")]
-        [Authorize(Roles = "ParkingLotOwner")] 
+        [Authorize(Roles = "ParkingLotOwner")]
         public async Task<IActionResult> GetMyParkingLots()
         {
             var userId = GetCurrentUserId();

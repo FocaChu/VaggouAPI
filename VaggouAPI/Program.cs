@@ -110,6 +110,7 @@ async Task SeedDatabase(IHost app)
                 await context.Roles.AddRangeAsync(
                     new Role { Name = "Admin" },
                     new Role { Name = "ParkingLotOwner" },
+                    new Role { Name = "Premium"},
                     new Role { Name = "Consumer" }
                 );
                 await context.SaveChangesAsync();
