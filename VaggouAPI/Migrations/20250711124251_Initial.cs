@@ -109,31 +109,6 @@ namespace VaggouAPI.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    RolesId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UsersId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => new { x.RolesId, x.UsersId });
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Roles_RolesId",
-                        column: x => x.RolesId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoles_Users_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Clients",
                 columns: table => new
                 {
@@ -152,6 +127,31 @@ namespace VaggouAPI.Migrations
                     table.ForeignKey(
                         name: "FK_Clients_Users_Id",
                         column: x => x.Id,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "UserRoles",
+                columns: table => new
+                {
+                    RolesId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    UsersId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoles", x => new { x.RolesId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Roles_RolesId",
+                        column: x => x.RolesId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Users_UsersId",
+                        column: x => x.UsersId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -182,6 +182,36 @@ namespace VaggouAPI.Migrations
                         name: "FK_ParkingLots_Clients_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Vehicles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    LicensePlate = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsPreRegistered = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    VehicleImageId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    VehicleModelId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    OwnerId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vehicles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Vehicles_Clients_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Vehicles_VehicleModels_VehicleModelId",
+                        column: x => x.VehicleModelId,
+                        principalTable: "VehicleModels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -219,6 +249,8 @@ namespace VaggouAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
                     AiAnalysis = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TotalReservations = table.Column<int>(type: "int", nullable: false),
@@ -317,49 +349,20 @@ namespace VaggouAPI.Migrations
                         name: "FK_Images_Clients_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Clients",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Images_ParkingLots_ParkingLotId",
                         column: x => x.ParkingLotId,
                         principalTable: "ParkingLots",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Vehicles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    LicensePlate = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsPreRegistered = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    VehicleImageId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    VehicleModelId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    OwnerId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Vehicles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Vehicles_Clients_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "Clients",
+                        name: "FK_Images_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Vehicles_Images_VehicleImageId",
-                        column: x => x.VehicleImageId,
-                        principalTable: "Images",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Vehicles_VehicleModels_VehicleModelId",
-                        column: x => x.VehicleModelId,
-                        principalTable: "VehicleModels",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -430,11 +433,6 @@ namespace VaggouAPI.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Clients_ProfileImageId",
-                table: "Clients",
-                column: "ProfileImageId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Favorites_ClientId",
                 table: "Favorites",
                 column: "ClientId");
@@ -447,7 +445,8 @@ namespace VaggouAPI.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Images_ClientId",
                 table: "Images",
-                column: "ClientId");
+                column: "ClientId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Images_ParkingLotId",
@@ -457,7 +456,8 @@ namespace VaggouAPI.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Images_VehicleId",
                 table: "Images",
-                column: "VehicleId");
+                column: "VehicleId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MonthlyReports_ParkingLotId",
@@ -520,45 +520,19 @@ namespace VaggouAPI.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Vehicles_VehicleImageId",
-                table: "Vehicles",
-                column: "VehicleImageId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_VehicleModelId",
                 table: "Vehicles",
                 column: "VehicleModelId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Clients_Images_ProfileImageId",
-                table: "Clients",
-                column: "ProfileImageId",
-                principalTable: "Images",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Images_Vehicles_VehicleId",
-                table: "Images",
-                column: "VehicleId",
-                principalTable: "Vehicles",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Clients_Images_ProfileImageId",
-                table: "Clients");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Vehicles_Images_VehicleImageId",
-                table: "Vehicles");
-
             migrationBuilder.DropTable(
                 name: "Favorites");
+
+            migrationBuilder.DropTable(
+                name: "Images");
 
             migrationBuilder.DropTable(
                 name: "MonthlyReports");
@@ -585,22 +559,19 @@ namespace VaggouAPI.Migrations
                 name: "ParkingSpots");
 
             migrationBuilder.DropTable(
-                name: "Images");
+                name: "Vehicles");
 
             migrationBuilder.DropTable(
                 name: "ParkingLots");
 
             migrationBuilder.DropTable(
-                name: "Vehicles");
+                name: "VehicleModels");
 
             migrationBuilder.DropTable(
                 name: "Adresses");
 
             migrationBuilder.DropTable(
                 name: "Clients");
-
-            migrationBuilder.DropTable(
-                name: "VehicleModels");
 
             migrationBuilder.DropTable(
                 name: "Users");

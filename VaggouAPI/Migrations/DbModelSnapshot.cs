@@ -103,8 +103,6 @@ namespace VaggouAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileImageId");
-
                     b.ToTable("Clients");
                 });
 
@@ -160,11 +158,13 @@ namespace VaggouAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("ClientId")
+                        .IsUnique();
 
                     b.HasIndex("ParkingLotId");
 
-                    b.HasIndex("VehicleId");
+                    b.HasIndex("VehicleId")
+                        .IsUnique();
 
                     b.ToTable("Images");
                 });
@@ -177,6 +177,9 @@ namespace VaggouAPI.Migrations
 
                     b.Property<string>("AiAnalysis")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("ParkingLotId")
                         .HasColumnType("char(36)");
@@ -196,6 +199,9 @@ namespace VaggouAPI.Migrations
 
                     b.Property<double>("TotalRevenue")
                         .HasColumnType("double");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -422,7 +428,6 @@ namespace VaggouAPI.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("LicensePlate")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<Guid>("OwnerId")
@@ -437,9 +442,6 @@ namespace VaggouAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex("VehicleImageId")
-                        .IsUnique();
 
                     b.HasIndex("VehicleModelId");
 
@@ -496,13 +498,6 @@ namespace VaggouAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VaggouAPI.Image", "ProfileImage")
-                        .WithMany()
-                        .HasForeignKey("ProfileImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("ProfileImage");
-
                     b.Navigation("User");
                 });
 
@@ -528,8 +523,9 @@ namespace VaggouAPI.Migrations
             modelBuilder.Entity("VaggouAPI.Image", b =>
                 {
                     b.HasOne("VaggouAPI.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
+                        .WithOne("ProfileImage")
+                        .HasForeignKey("VaggouAPI.Image", "ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("VaggouAPI.ParkingLot", "ParkingLot")
                         .WithMany("Images")
@@ -537,8 +533,9 @@ namespace VaggouAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("VaggouAPI.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId");
+                        .WithOne("Image")
+                        .HasForeignKey("VaggouAPI.Image", "VehicleId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Client");
 
@@ -661,12 +658,6 @@ namespace VaggouAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VaggouAPI.Image", "VehicleImage")
-                        .WithOne()
-                        .HasForeignKey("VaggouAPI.Vehicle", "VehicleImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("VaggouAPI.VehicleModel", "VehicleModel")
                         .WithMany("Vehicles")
                         .HasForeignKey("VehicleModelId")
@@ -674,8 +665,6 @@ namespace VaggouAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
-
-                    b.Navigation("VehicleImage");
 
                     b.Navigation("VehicleModel");
                 });
@@ -690,6 +679,8 @@ namespace VaggouAPI.Migrations
                     b.Navigation("Favorites");
 
                     b.Navigation("OwnedParkingLots");
+
+                    b.Navigation("ProfileImage");
 
                     b.Navigation("Reservations");
 
@@ -734,6 +725,9 @@ namespace VaggouAPI.Migrations
 
             modelBuilder.Entity("VaggouAPI.Vehicle", b =>
                 {
+                    b.Navigation("Image")
+                        .IsRequired();
+
                     b.Navigation("Reservations");
                 });
 

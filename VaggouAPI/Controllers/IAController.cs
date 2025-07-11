@@ -26,5 +26,13 @@ namespace VaggouAPI
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPatch("report/{id}")]
+        public async Task<IActionResult> GenerateReportAnalysis(Guid id)
+        {
+            var response = await _service.GenerateReportAnalysisAsync(id);
+
+            return Ok(response);
+        }
     }
 }
