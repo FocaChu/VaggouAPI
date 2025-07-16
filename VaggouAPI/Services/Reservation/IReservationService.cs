@@ -2,18 +2,14 @@
 {
     public interface IReservationService
     {
-        Task<IEnumerable<Reservation>> GetAllAsync();
+        Task<IEnumerable<Reservation>> GetMyReservationsAsync(Guid loggedInUserId);
 
-        Task<Reservation?> GetByIdAsync(Guid id);
+        Task<Reservation> GetMyReservationByIdAsync(Guid reservationId, Guid loggedInUserId);
 
-        Task<IEnumerable<Reservation>> GetByClientIdAsync(Guid clientId);
+        Task<IEnumerable<Reservation>> GetForMyParkingLotAsync(Guid parkingLotId, Guid loggedInOwnerId);
 
-        Task<IEnumerable<Reservation>> GetByMonthAsync(int year, int month);
+        Task<Reservation> CreateAsync(CreateReservationRequestDto dto, Guid loggedInUserId);
 
-        Task<Reservation> CreateAsync(ReservationDto dto);
-
-        Task<Reservation?> UpdateAsync(ReservationDto dto, Guid id);
-
-        Task DeleteAsync(Guid id);
+        Task<Reservation> CancelAsync(Guid reservationId, Guid loggedInUserId);
     }
 }

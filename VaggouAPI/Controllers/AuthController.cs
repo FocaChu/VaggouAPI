@@ -17,7 +17,7 @@ namespace VaggouAPI
 
         [HttpPost("register")]
         [RequestSizeLimit(10 * 1024 * 1024)]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -27,7 +27,7 @@ namespace VaggouAPI
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login(LoginRequestDto loginDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

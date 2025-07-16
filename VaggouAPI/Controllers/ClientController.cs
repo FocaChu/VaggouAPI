@@ -19,7 +19,7 @@ namespace VaggouAPI
         }
 
         [HttpGet("profile")]
-        [ProducesResponseType(typeof(ClientProfileDto), 200)]
+        [ProducesResponseType(typeof(ClientProfileResponseDto), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetMyProfile()
         {
@@ -31,10 +31,10 @@ namespace VaggouAPI
         }
 
         [HttpPut("profile")]
-        [ProducesResponseType(typeof(ClientProfileDto), 200)]
+        [ProducesResponseType(typeof(ClientProfileResponseDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateClientProfileDto dto)
+        public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateClientProfileRequestDto dto)
         {
             if (!ModelState.IsValid)
             {

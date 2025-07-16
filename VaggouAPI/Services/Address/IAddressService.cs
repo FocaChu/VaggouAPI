@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace VaggouAPI
+﻿namespace VaggouAPI
 {
     public interface IAddressService
     {
@@ -8,9 +6,9 @@ namespace VaggouAPI
 
         Task<Address?> GetByIdAsync(Guid id);
 
-        Task<Address> CreateAsync(AddressDto dto);
+        Task<Address> CreateAsync(CreateAddressRequestDto dto);
 
-        Task<Address?> UpdateAsync(AddressDto dto, Guid id);
+        Task<Address> UpdateAsync(Guid id, UpdateAddressRequestDto dto);
 
         Task DeleteAsync(Guid id);
     }

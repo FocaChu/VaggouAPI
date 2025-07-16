@@ -14,44 +14,58 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Address>> GetAllAsync() =>
-            await _context.Adresses.ToListAsync();
-        
-
-        public async Task<Address?> GetByIdAsync(Guid id) =>
-            await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException($"Address with Id: {id} not found.");
-
-
-        public async Task<Address> CreateAsync(AddressDto dto)
+        public async Task<IEnumerable<Address>> GetAllAsync()
         {
-            var created = _mapper.Map<Address>(dto);
-
-            await _context.Adresses.AddAsync(created);
-
-            await _context.SaveChangesAsync();
-            return created;
+            return await _context.Adresses.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Address?> UpdateAsync(AddressDto dto, Guid id)
+        public async Task<Address?> GetByIdAsync(Guid id)
         {
-            var updated = await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Address not found.");
+            var address = await _context.Adresses.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id) 
+                ?? throw new NotFoundException($"Address with Id: {id} not found.");
 
-            _mapper.Map(dto, updated);
+            return address;
+        }
+        public async Task<Address> CreateAsync(CreateAddressRequestDto dto)
+        {
+            var existingAddress = await _context.Adresses.FirstOrDefaultAsync(a =>
+                a.Street == dto.Street &&
+                a.Number == dto.Number &&
+                a.ZipCode == dto.ZipCode &&
+                a.City == dto.City &&
+                a.State == dto.State);
 
-            _context.Adresses.Update(updated);
+            if (existingAddress != null)
+            {
+                throw new BusinessException("An identical address already exists.");
+            }
+
+            var addressEntity = _mapper.Map<Address>(dto);
+
+            await _context.Adresses.AddAsync(addressEntity);
             await _context.SaveChangesAsync();
-            return updated;
+
+            return addressEntity;
+        }
+
+        public async Task<Address> UpdateAsync(Guid id, UpdateAddressRequestDto dto)
+        {
+            var addressEntity = await _context.Adresses.FindAsync(id)
+                ?? throw new NotFoundException("Address to update not found.");
+
+            _mapper.Map(dto, addressEntity);
+
+            await _context.SaveChangesAsync();
+
+            return addressEntity;
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.Adresses.FindAsync(id)
-                ?? throw new NotFoundException("Address not found.");
+            var addressEntity = await _context.Adresses.FindAsync(id)
+                ?? throw new NotFoundException("Address to delete not found.");
 
-            _context.Adresses.Remove(entity);
-
+            _context.Adresses.Remove(addressEntity);
             await _context.SaveChangesAsync();
         }
     }

@@ -1,6 +1,6 @@
-﻿namespace VaggouAPI
-{
-    public class ParkingSpotDto
+﻿namespace VaggouAPI 
+{ 
+    public class UpdateParkingSpotRequestDto
     {
         public string SpotIdentifier { get; set; }
 
@@ -13,7 +13,5 @@
         public bool IsDisabled { get; set; }
 
         public Size Size { get; set; }
-
-        public Guid ParkingLotId { get; set; }
     }
 }

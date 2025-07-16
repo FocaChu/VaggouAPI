@@ -1,6 +1,6 @@
 ﻿namespace VaggouAPI
 {
-    public class ClientProfileDto
+    public class ClientProfileResponseDto
     {
         public Guid Id { get; set; }
 
@@ -11,5 +11,7 @@
         public string Phone { get; set; }
 
         public string CPF { get; set; }
+
+        public Guid? ProfileImageId { get; set; }
     }
 }

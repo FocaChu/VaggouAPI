@@ -15,39 +15,6 @@ namespace VaggouAPI
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllByScore()
-        {
-            _logger.LogInformation("Listing all reviews.");
-
-            var result = await _service.GetAllAsync();
-
-            return Ok(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            _logger.LogInformation("Fetching review by ID: {Id}", id);
-
-            var result = await _service.GetByIdAsync(id);
-
-            return Ok(result);
-        }
-
-        [HttpGet("client/{clientId}")]
-        public async Task<IActionResult> GetByClient(Guid clientId)
-        {
-            _logger.LogInformation("Fetching reviews by client ID: {ClientId}", clientId);
-            var review = await _service.GetByClientAsync(clientId);
-            if (review == null)
-            {
-                _logger.LogInformation("No review found for client ID: {ClientId}", clientId);
-                return NotFound($"No review found for client ID: {clientId}");
-            }
-            return Ok(review);
-        }
-
         [HttpGet("parkingLot/{parkingLotId}")]
         public async Task<IActionResult> GetByParkingLot(Guid parkingLotId)
         {
@@ -62,7 +29,7 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ReviewDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateReviewRequestDto dto, Guid loggedInUserId)
         {
             if (!ModelState.IsValid)
             {
@@ -73,9 +40,9 @@ namespace VaggouAPI
             _logger.LogInformation("Creating new review.");
             try
             {
-                var created = await _service.CreateAsync(dto);
+                var created = await _service.CreateAsync(dto, loggedInUserId);
                 _logger.LogInformation("Review created. ID: {Id}", created.Id);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                return Ok();
             }
             catch (NotFoundException ex)
             {
@@ -84,36 +51,13 @@ namespace VaggouAPI
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] ReviewDto dto, Guid id)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Validation error when updating review ID: {Id}", id);
-                return BadRequest(ModelState);
-            }
-
-            _logger.LogInformation("Updating review ID: {Id}", id);
-            try
-            {
-                var updated = await _service.UpdateAsync(dto, id);
-                _logger.LogInformation("Review updated. ID: {Id}", updated.Id);
-                return Ok(updated);
-            }
-            catch (NotFoundException ex)
-            {
-                _logger.LogWarning("Failed to update review ID {Id}: {Message}", id, ex.Message);
-                return NotFound(ex.Message);
-            }
-        }
-
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, Guid loggedInUserId)
         {
             _logger.LogInformation("Deleting review ID: {Id}", id);
             try
             {
-                await _service.DeleteAsync(id);
+                await _service.DeleteAsync(id, loggedInUserId);
                 _logger.LogInformation("Review deleted. ID: {Id}", id);
                 return NoContent();
             }

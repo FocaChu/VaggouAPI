@@ -2,8 +2,8 @@
 {
     public interface IAuthService
     {
-        Task<string> RegisterAsync(RegisterDto registerDto);
+        Task<string> RegisterAsync(RegisterRequestDto registerDto);
 
-        Task<AuthResponseDto> Login(LoginDto loginDto);
+        Task<AuthResponseDto> Login(LoginRequestDto loginDto);
     }
 }

@@ -38,23 +38,13 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] RoleDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateRoleRequestDto dto)
         {
             _logger.LogInformation("Admin user is creating a new role.");
 
             var created = await _service.CreateAsync(dto);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] RoleDto dto, Guid id)
-        {
-            _logger.LogInformation($"Admin user is updating role with Id: {id}.");
-
-            var updated = await _service.UpdateAsync(dto, id);
-
-            return Ok(updated);
         }
 
         [HttpDelete("{id}")]

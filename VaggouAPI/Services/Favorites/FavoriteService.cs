@@ -14,66 +14,64 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Favorite>> GetAllAsync() =>
-            await IncludeAll().ToListAsync();
-
-        public async Task<Favorite?> GetByIdAsync(Guid id) =>
-            await IncludeAll().FirstOrDefaultAsync(pl => pl.Id == id)
-                ?? throw new NotFoundException("Favorite model not found.");
-
-        public async Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId) =>
-            await IncludeAll().Where(f => f.ClientId == clientId)
+        public async Task<IEnumerable<Favorite>> GetMyFavoritesAsync(Guid loggedInUserId)
+        {
+            return await _context.Favorites
+                .Include(f => f.ParkingLot)
+                    .ThenInclude(pl => pl.Address) 
+                .Include(f => f.ParkingLot)
+                    .ThenInclude(pl => pl.Images)
+                .Where(f => f.ClientId == loggedInUserId)
+                .AsNoTracking()
                 .ToListAsync();
-
-        public async Task<Favorite> CreateAsync(FavoriteDto dto)
-        {
-            var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new NotFoundException("Client not found.");
-
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new NotFoundException("Parking lot not found.");
-
-            var created = _mapper.Map<Favorite>(dto);
-            created.Client = client;
-            created.ParkingLot = parkingLot;
-
-            await _context.Favorites.AddAsync(created);
-
-            await _context.SaveChangesAsync();
-            return created;
         }
 
-        public async Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id)
+        public async Task<Favorite> CreateAsync(Guid loggedInUserId, CreateFavoriteRequestDto dto)
         {
-            var updated = await _context.Favorites.FindAsync(id)
-                ?? throw new NotFoundException("Favorite parking lot not found.");
+            var parkingLotExists = await _context.ParkingLots.AnyAsync(pl => pl.Id == dto.ParkingLotId);
+            if (!parkingLotExists)
+            {
+                throw new NotFoundException("Parking lot not found.");
+            }
 
-            var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new NotFoundException("Client not found.");
+            var alreadyFavorite = await _context.Favorites.AnyAsync(f =>
+                f.ClientId == loggedInUserId &&
+                f.ParkingLotId == dto.ParkingLotId);
 
-            var parkingLot = await _context.ParkingLots.FindAsync(dto.ParkingLotId)
-                ?? throw new NotFoundException("Parking lot not found.");
+            if (alreadyFavorite)
+            {
+                throw new BusinessException("This parking lot is already in your favorites.");
+            }
 
-            _mapper.Map(dto, updated);
-            updated.Client = client;
-            updated.ParkingLot = parkingLot;
+            var favoriteEntity = new Favorite
+            {
+                ClientId = loggedInUserId,
+                ParkingLotId = dto.ParkingLotId,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            _context.Favorites.Update(updated);
+            await _context.Favorites.AddAsync(favoriteEntity);
             await _context.SaveChangesAsync();
-            return updated;
+
+            await _context.Entry(favoriteEntity)
+                          .Reference(f => f.ParkingLot)
+                          .LoadAsync();
+
+            return favoriteEntity;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid favoriteId, Guid loggedInUserId)
         {
-            var entity = await _context.ParkingLots.FindAsync(id)
-                ?? throw new NotFoundException("Favorite parking lot not found.");
+            var favoriteEntity = await _context.Favorites.FindAsync(favoriteId)
+                ?? throw new NotFoundException("Favorite not found.");
+            
+            if (favoriteEntity.ClientId != loggedInUserId)
+            {
+                throw new UnauthorizedException("You do not have permission to delete this favorite.");
+            }
 
-            _context.ParkingLots.Remove(entity);
+            _context.Favorites.Remove(favoriteEntity);
             await _context.SaveChangesAsync();
         }
-
-        private IQueryable<Favorite> IncludeAll() =>
-            _context.Favorites
-                .Include(f => f.ParkingLot);
     }
 }

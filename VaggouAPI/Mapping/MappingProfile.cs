@@ -6,64 +6,93 @@ namespace VaggouAPI
     {
         public MappingProfile()
         {
-            // CreateMap<Source, Destination>();
+            #region Auth & User Mappings
 
-            // Address mapping
-            CreateMap<Address, AddressDto>();
-            CreateMap<AddressDto, Address>();
+            CreateMap<RegisterRequestDto, User>();
+            CreateMap<RegisterRequestDto, Client>();
 
-            // Client and User mapping
-            CreateMap<Client, ClientDto>();
-            CreateMap<ClientDto, Client>(); 
+            CreateMap<User, UserSummaryDto>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Client.FullName))
+                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles.Select(r => r.Name)));
 
-            // Favorite mapping
-            CreateMap<Favorite, FavoriteDto>();
-            CreateMap<FavoriteDto, Favorite>()
-                .ForMember(dest => dest.Client, opt => opt.Ignore())
-                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
+            CreateMap<User, UserDetailDto>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Client.FullName))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Client.Phone))
+                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles.Select(r => r.Name)))
+                .ForMember(dest => dest.OwnedParkingLotsCount, opt => opt.MapFrom(src => src.Client.OwnedParkingLots.Count));
 
-            // MonthlyReport mapping
-            CreateMap<MonthlyReport, MonthlyReportDto>();
-            CreateMap<MonthlyReportDto, MonthlyReport>()
-                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
+            #endregion
 
-            // ParkingLot mapping
-            CreateMap<ParkingLot, ParkingLotDto>();
-            CreateMap<ParkingLotDto, ParkingLot>()
-                .ForMember(dest => dest.Owner, opt => opt.Ignore())
-                .ForMember(dest => dest.Address, opt => opt.Ignore());
+            #region Client Mappings
 
-            // ParkingSpot mapping
-            CreateMap<ParkingSpot, ParkingSpotDto>();
-            CreateMap<ParkingSpotDto, ParkingSpot>()
-                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
+            CreateMap<UpdateClientProfileRequestDto, Client>();
 
-            // Reservation mapping
-            CreateMap<Reservation, ReservationDto>();
-            CreateMap<ReservationDto, Reservation>()
-                .ForMember(dest => dest.Client, opt => opt.Ignore())
-                .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
-                .ForMember(dest => dest.ParkingSpot, opt => opt.Ignore())
-                .ForMember(dest => dest.Payment, opt => opt.Ignore());
+            CreateMap<Client, ClientProfileResponseDto>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email));
 
-            // Review mapping
-            CreateMap<Review, ReviewDto>();
-            CreateMap<ReviewDto, Review>()
-                .ForMember(dest => dest.Client, opt => opt.Ignore())
-                .ForMember(dest => dest.ParkingLot, opt => opt.Ignore());
+            CreateMap<Client, ClientSummaryResponseDto>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email));
 
-            // Vehicle mapping
-            CreateMap<Vehicle, VehicleDto>();
-            CreateMap<VehicleDto, Vehicle>()
-                .ForMember(dest => dest.VehicleModel, opt => opt.Ignore())
-                .ForMember(dest => dest.Owner, opt => opt.Ignore());
+            #endregion
 
-            // VehicleModel mapping
-            CreateMap<VehicleModel, VehicleModelDto>();
-            CreateMap<VehicleModelDto, VehicleModel>();
+            #region Address Mappings
 
-            CreateMap<Role, RoleDto>();
-            CreateMap<RoleDto, Role>();
+            CreateMap<Address, AddressResponseDto>();
+            CreateMap<CreateAddressRequestDto, Address>();
+            CreateMap<UpdateAddressRequestDto, Address>();
+
+            #endregion
+
+            #region ParkingLot Mappings
+
+            CreateMap<CreateParkingLotRequestDto, ParkingLot>();
+
+            CreateMap<UpdateParkingLotRequestDto, ParkingLot>();
+
+            CreateMap<ParkingLot, ParkingLotResponseDto>()
+                .ForMember(dest => dest.ImageIds, opt => opt.MapFrom(src => src.Images.Select(i => i.Id)));
+
+            CreateMap<ParkingLot, CreateParkingLotResponseDto>()
+                .ForMember(dest => dest.CreatedParkingLot, opt => opt.MapFrom(src => src));
+
+
+            #endregion
+
+            #region ParkingSpot Mappings
+
+            CreateMap<ParkingSpot, ParkingSpotSummaryResponseDto>();
+            CreateMap<CreateParkingSpotRequestDto, ParkingSpot>();
+            CreateMap<UpdateParkingSpotRequestDto, ParkingSpot>();
+
+            #endregion
+
+            #region Reservation Mappings
+
+            CreateMap<CreateReservationRequestDto, Reservation>();
+
+            CreateMap<Reservation, ReservationResponseDto>();
+
+            #endregion
+
+            #region Review Mappings
+
+            CreateMap<CreateReviewRequestDto, Review>();
+
+            CreateMap<Review, ReviewResponseDto>()
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.FullName));
+
+            #endregion
+
+            #region Vehicle Mappings
+
+            CreateMap<Vehicle, VehicleSummaryResponseDto>()
+                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.VehicleModel.ModelName))
+                .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.VehicleModel.Brand));
+
+            CreateMap<VehicleModel, VehicleModelDto>().ReverseMap();
+            CreateMap<VehicleDto, Vehicle>(); 
+
+            #endregion
         }
     }
 }

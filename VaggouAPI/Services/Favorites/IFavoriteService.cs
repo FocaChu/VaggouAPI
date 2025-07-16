@@ -2,16 +2,11 @@
 {
     public interface IFavoriteService
     {
-        Task<IEnumerable<Favorite>> GetAllAsync();
+        Task<IEnumerable<Favorite>> GetMyFavoritesAsync(Guid loggedInUserId);
 
-        Task<Favorite?> GetByIdAsync(Guid id);
+        Task<Favorite> CreateAsync(Guid loggedInUserId, CreateFavoriteRequestDto dto);
 
-        Task<IEnumerable<Favorite>> GetByClientIdAsync(Guid clientId);
-
-        Task<Favorite> CreateAsync(FavoriteDto dto);
-
-        Task<Favorite?> UpdateAsync(FavoriteDto dto, Guid id);
-
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(Guid favoriteId, Guid loggedInUserId);
     }
 }
+

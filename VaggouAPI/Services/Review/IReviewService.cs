@@ -2,18 +2,10 @@
 {
     public interface IReviewService
     {
-        Task<IEnumerable<Review>> GetAllAsync();
+        Task<IEnumerable<Review>> GetByParkingLotAsync(Guid parkingLotId);
 
-        Task<Review?> GetByIdAsync(Guid Id);
+        Task<Review> CreateAsync(CreateReviewRequestDto dto, Guid loggedInUserId);
 
-        Task<Review?> GetByClientAsync(Guid clientId);
-
-        Task<Review?> GetByParkingLotAsync(Guid parkingLotId);
-
-        Task<Review?> CreateAsync(ReviewDto review);
-
-        Task<Review?> UpdateAsync(ReviewDto dto, Guid id);
-
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(Guid reviewId, Guid loggedInUserId);
     }
 }

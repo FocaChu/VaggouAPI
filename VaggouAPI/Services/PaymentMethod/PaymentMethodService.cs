@@ -15,42 +15,54 @@ namespace VaggouAPI
         }
 
         public async Task<IEnumerable<PaymentMethod>> GetAllAsync() =>
-            await _context.PaymentMethods.ToListAsync();
-        
+            await _context.PaymentMethods.AsNoTracking().ToListAsync();
 
-        public async Task<PaymentMethod?> GetByIdAsync(Guid id) =>
-            await _context.PaymentMethods.FindAsync(id)
+        public async Task<PaymentMethod> GetByIdAsync(Guid id) =>
+            await _context.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(pm => pm.Id == id)
                 ?? throw new NotFoundException("Payment method not found.");
 
-        public async Task<PaymentMethod> CreateAsync(PaymentMethodDto dto)
+        public async Task<PaymentMethod> CreateAsync(CreatePaymentMethodRequestDto dto)
         {
-            var created = _mapper.Map<PaymentMethod>(dto);
+            var nameExists = await _context.PaymentMethods.AnyAsync(pm => pm.Name == dto.Name);
+            if (nameExists)
+            {
+                throw new BusinessException($"A payment method with the name '{dto.Name}' already exists.");
+            }
 
-            await _context.PaymentMethods.AddAsync(created);
-
+            var entity = _mapper.Map<PaymentMethod>(dto);
+            await _context.PaymentMethods.AddAsync(entity);
             await _context.SaveChangesAsync();
-            return created;
+            return entity;
         }
 
-        public async Task<PaymentMethod?> UpdateAsync(PaymentMethodDto dto, Guid id)
+        public async Task<PaymentMethod> UpdateAsync(Guid id, CreatePaymentMethodRequestDto dto)
         {
-            var updated = await _context.PaymentMethods.FindAsync(id)
-                ?? throw new NotFoundException("PaymentMethod not found.");
+            var entity = await _context.PaymentMethods.FindAsync(id)
+                ?? throw new NotFoundException("Payment method not found.");
 
-            _mapper.Map(dto, updated);
+            var nameExists = await _context.PaymentMethods.AnyAsync(pm => pm.Name == dto.Name && pm.Id != id);
+            if (nameExists)
+            {
+                throw new BusinessException($"A payment method with the name '{dto.Name}' already exists.");
+            }
 
-            _context.PaymentMethods.Update(updated);
+            _mapper.Map(dto, entity);
             await _context.SaveChangesAsync();
-            return updated;
+            return entity;
         }
 
         public async Task DeleteAsync(Guid id)
         {
+            var isInUse = await _context.Payments.AnyAsync(p => p.PaymentMethodId == id);
+            if (isInUse)
+            {
+                throw new BusinessException("This payment method cannot be deleted as it is associated with existing payments.");
+            }
+
             var entity = await _context.PaymentMethods.FindAsync(id)
-                ?? throw new NotFoundException("PaymentMethod not found.");
+                ?? throw new NotFoundException("Payment method not found.");
 
             _context.PaymentMethods.Remove(entity);
-
             await _context.SaveChangesAsync();
         }
     }

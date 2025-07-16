@@ -15,39 +15,43 @@ namespace VaggouAPI
         }
 
         public async Task<IEnumerable<Role>> GetAllAsync() =>
-            await _context.Roles
-                .ToListAsync();
+            await _context.Roles.AsNoTracking().ToListAsync();
 
-        public async Task<Role?> GetByIdAsync(Guid id) =>
-            await _context.Roles.FirstOrDefaultAsync(r => r.Id == id)
+        public async Task<Role> GetByIdAsync(Guid id) =>
+            await _context.Roles.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id)
                 ?? throw new NotFoundException($"Role with Id: {id} not found");
 
-        public async Task<Role?> CreateAsync(RoleDto dto)
+        public async Task<Role> CreateAsync(CreateRoleRequestDto dto)
         {
-            var created = _mapper.Map<Role>(dto);
+            var nameExists = await _context.Roles.AnyAsync(r => r.Name == dto.Name);
+            if (nameExists)
+            {
+                throw new BusinessException($"A role with the name '{dto.Name}' already exists.");
+            }
 
-            _context.Roles.Add(created);
+            var entity = _mapper.Map<Role>(dto);
+            await _context.Roles.AddAsync(entity);
             await _context.SaveChangesAsync();
-            return created;
-        }
-
-        public async Task<Role?> UpdateAsync(RoleDto dto, Guid id)
-        {
-            var updated = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id)
-                ?? throw new NotFoundException("Role not found.");
-
-            _mapper.Map(dto, updated);
-
-            _context.Roles.Update(updated);
-            await _context.SaveChangesAsync();
-            return updated;
+            return entity;
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var entity = await _context.Roles.FirstOrDefaultAsync(r => r.Id == id)
+            var roleToDelete = await _context.Roles.Include(r => r.Users).FirstOrDefaultAsync(r => r.Id == id)
                 ?? throw new NotFoundException("Role not found.");
-            _context.Roles.Remove(entity);
+
+            if (roleToDelete.Users.Any())
+            {
+                throw new BusinessException("This role cannot be deleted as it is currently assigned to one or more users.");
+            }
+
+            var essentialRoles = new[] { "Admin", "ParkingLotOwner", "Consumer" };
+            if (essentialRoles.Contains(roleToDelete.Name))
+            {
+                throw new BusinessException($"The essential role '{roleToDelete.Name}' cannot be deleted.");
+            }
+
+            _context.Roles.Remove(roleToDelete);
             await _context.SaveChangesAsync();
         }
     }

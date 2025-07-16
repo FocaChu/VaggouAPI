@@ -2,18 +2,14 @@
 {
     public interface IPaymentService
     {
-        Task<IEnumerable<Payment>> GetAllAsync();
+        Task<IEnumerable<Payment>> GetMyPaymentsAsync(Guid loggedInUserId);
 
-        Task<Payment?> GetByIdAsync(Guid id);
+        Task<Payment> GetByIdAsync(Guid paymentId, Guid loggedInUserId);
 
-        Task<IEnumerable<Payment>> GetByPaymentMethodAsync(Guid paymentMethodId);
+   
+        Task<Payment> InitiatePaymentForReservationAsync(InitiatePaymentRequestDto dto, Guid loggedInUserId);
 
-        Task<IEnumerable<Payment>> GetByMonthAsync(int year, int month);
-
-        Task<Payment> CreateAsync(PaymentDto dto);
-
-        Task<Payment?> UpdateAsync(PaymentDto dto, Guid id);
-
-        Task DeleteAsync(Guid id);
+        
+        Task<Payment> UpdatePaymentStatusAsync(Guid paymentId, Status newStatus);
     }
 }

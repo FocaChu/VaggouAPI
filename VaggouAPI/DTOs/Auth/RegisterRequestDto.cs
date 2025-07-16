@@ -1,6 +1,6 @@
 ﻿namespace VaggouAPI
 {
-    public class RegisterDto
+    public class RegisterRequestDto
     {
         public string FullName { get; set; }
 

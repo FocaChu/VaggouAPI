@@ -14,44 +14,31 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<ClientProfileDto> GetMyProfileAsync(Guid loggedInUserId)
+        public async Task<Client> GetMyProfileAsync(Guid loggedInUserId)
         {
             var client = await _context.Clients
                 .Include(c => c.User) 
-                .Where(c => c.Id == loggedInUserId)
-                .Select(c => new ClientProfileDto
-                {
-                    Id = c.Id,
-                    FullName = c.FullName,
-                    Email = c.User.Email,
-                    Phone = c.Phone,
-                    CPF = c.CPF
-                })
-                .FirstOrDefaultAsync();
-
-            if (client == null)
-            {
-                throw new NotFoundException("Client profile not found.");
-            }
+                .AsNoTracking() 
+                .FirstOrDefaultAsync(c => c.Id == loggedInUserId)
+                    ?? throw new NotFoundException("Client profile not found.");
+            
 
             return client;
         }
 
-        public async Task<ClientProfileDto> UpdateMyProfileAsync(Guid loggedInUserId, UpdateClientProfileDto dto)
+        public async Task<Client> UpdateMyProfileAsync(Guid loggedInUserId, UpdateClientProfileRequestDto dto)
         {
-            var clientEntity = await _context.Clients.FindAsync(loggedInUserId);
+            var clientEntity = await _context.Clients
+                                     .Include(c => c.User) 
+                                     .FirstOrDefaultAsync(c => c.Id == loggedInUserId)
+                                     ?? throw new NotFoundException("Client profile not found.");
+            
 
-            if (clientEntity == null)
-            {
-                throw new NotFoundException("Client profile not found.");
-            }
-
-            clientEntity.FullName = dto.FullName;
-            clientEntity.Phone = dto.Phone;
+            _mapper.Map(dto, clientEntity);
 
             await _context.SaveChangesAsync();
 
-            return await GetMyProfileAsync(loggedInUserId);
+            return clientEntity;
         }
     }
 }

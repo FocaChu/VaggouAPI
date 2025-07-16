@@ -4,11 +4,11 @@
     {
         Task<IEnumerable<PaymentMethod>> GetAllAsync();
 
-        Task<PaymentMethod?> GetByIdAsync(Guid id);
+        Task<PaymentMethod> GetByIdAsync(Guid id);
 
-        Task<PaymentMethod> CreateAsync(PaymentMethodDto dto);
+        Task<PaymentMethod> CreateAsync(CreatePaymentMethodRequestDto dto);
 
-        Task<PaymentMethod?> UpdateAsync(PaymentMethodDto dto, Guid id);
+        Task<PaymentMethod> UpdateAsync(Guid id, CreatePaymentMethodRequestDto dto);
 
         Task DeleteAsync(Guid id);
     }

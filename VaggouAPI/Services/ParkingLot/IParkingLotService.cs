@@ -2,27 +2,21 @@
 {
     public interface IParkingLotService
     {
-        Task<IEnumerable<ParkingLot>> GetAllByScoreAsync();
+        Task<IEnumerable<ParkingLot>> SearchAsync(double? latitude, double? longitude, double? radiusKm, string? zipCode);
+        
+        Task<IEnumerable<ParkingLot>> GetAllSortedByScoreAsync();
+        
 
-        Task<IEnumerable<ParkingLot>> GetAllByProximityAsync(double latitude, double longitude);
-
-        Task<ParkingLot?> GetByIdAsync(Guid id);
-
-        Task<IEnumerable<ParkingLot>> GetByAdressZipCodeAsync(string zipCode);
-
-        Task<IEnumerable<ParkingLot>> GetByProximityAsync(double latitude, double longitude, double raioKm);
+        Task<ParkingLot> GetByIdAsync(Guid id); 
 
         Task<IEnumerable<ParkingLot>> GetByOwnerIdAsync(Guid ownerId);
 
-        Task<IEnumerable<ParkingLot>> GetWithCoverAsync();    
-
-        Task<IEnumerable<ParkingLot>> GetWithPCDSpaceAsync();
-
         Task<IEnumerable<ParkingLot>> GetMyParkingLotsAsync(Guid loggedInUserId);
 
-        Task<(ParkingLot parkingLot, User updatedUser, bool roleWasAdded)> CreateAsync(ParkingLotDto dto, Guid loggedInUserId);
 
-        Task<ParkingLot> UpdateAsync(ParkingLotDto dto, Guid parkingLotId, Guid loggedInUserId);
+        Task<(ParkingLot parkingLot, User updatedUser, bool roleWasAdded)> CreateAsync(CreateParkingLotRequestDto dto, Guid loggedInUserId);
+        
+        Task<ParkingLot> UpdateAsync(Guid parkingLotId, UpdateParkingLotRequestDto dto, Guid loggedInUserId);
 
         Task DeleteAsync(Guid parkingLotId, Guid loggedInUserId);
     }

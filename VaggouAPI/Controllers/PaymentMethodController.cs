@@ -36,7 +36,7 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] PaymentMethodDto dto)
+        public async Task<IActionResult> Create([FromBody] CreatePaymentMethodRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -51,7 +51,7 @@ namespace VaggouAPI
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] PaymentMethodDto dto, Guid id)
+        public async Task<IActionResult> Update([FromBody] CreatePaymentMethodRequestDto dto, Guid id)
         {
             if (!ModelState.IsValid)
             {
@@ -60,7 +60,7 @@ namespace VaggouAPI
             }
 
             _logger.LogInformation("Updating payment method ID: {Id}", id);
-            var updated = await _service.UpdateAsync(dto, id);
+            var updated = await _service.UpdateAsync(id, dto);
             _logger.LogInformation("Payment method updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }

@@ -15,16 +15,6 @@ namespace VaggouAPI
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            _logger.LogInformation("Listing all parking spots.");
-
-            var result = await _service.GetAllAsync();
-
-            return Ok(result);
-        }
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -40,13 +30,13 @@ namespace VaggouAPI
         {
             _logger.LogInformation("Fetching parking spots in parking lot with ID: {Id}", id);
 
-            var result = await _service.GetByParkingLotIdAsync(id);
+            var result = await _service.GetForParkingLotAsync(id);
 
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ParkingSpotDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateParkingSpotRequestDto dto, Guid parkingLotId, Guid loggedInUserId)
         {
             if (!ModelState.IsValid)
             {
@@ -55,13 +45,13 @@ namespace VaggouAPI
             }
 
             _logger.LogInformation("Creating new parking spot.");
-            var created = await _service.CreateAsync(dto);
+            var created = await _service.CreateAsync(parkingLotId, dto, loggedInUserId);
             _logger.LogInformation("Parking spot created. ID: {Id}", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] ParkingSpotDto dto, Guid id)
+        public async Task<IActionResult> Update([FromBody] UpdateParkingSpotRequestDto dto, Guid id, Guid loggedInUserId)
         {
             if (!ModelState.IsValid)
             {
@@ -70,16 +60,16 @@ namespace VaggouAPI
             }
 
             _logger.LogInformation("Updating parking spot ID: {Id}", id);
-            var updated = await _service.UpdateAsync(dto, id);
+            var updated = await _service.UpdateAsync(id, dto, loggedInUserId);
             _logger.LogInformation("Parking spot updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, Guid loggedInUserId)
         {
             _logger.LogInformation("Deleting parking spot ID: {Id}", id);
-            await _service.DeleteAsync(id);
+            await _service.DeleteAsync(id, loggedInUserId);
             _logger.LogInformation("Parking spot deleted. ID: {Id}", id);
             return NoContent();
         }

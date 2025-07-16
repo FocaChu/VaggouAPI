@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System.Runtime.InteropServices;
 
 namespace VaggouAPI
 {
@@ -18,7 +16,7 @@ namespace VaggouAPI
             _passwordHasher = new PasswordHasher<User>();
         }
 
-        public async Task<string> RegisterAsync(RegisterDto registerDto)
+        public async Task<string> RegisterAsync(RegisterRequestDto registerDto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
             {
@@ -54,7 +52,7 @@ namespace VaggouAPI
             return "Registration successful"; 
         }
 
-        public async Task<AuthResponseDto> Login(LoginDto loginDto)
+        public async Task<AuthResponseDto> Login(LoginRequestDto loginDto)
         {
             var user = await _context.Users
                 .Include(u => u.Roles)
@@ -75,7 +73,7 @@ namespace VaggouAPI
 
             var clientProfile = await _context.Clients
                 .Where(c => c.Id == user.Id)
-                .Select(c => new ClientDto { FullName = c.FullName, Email = user.Email, Phone = c.Phone, CPF = c.CPF })
+                .Select(c => new ClientProfileResponseDto { FullName = c.FullName, Email = user.Email, Phone = c.Phone, CPF = c.CPF, ProfileImageId = c.ProfileImageId})
                 .FirstOrDefaultAsync();
 
             return new AuthResponseDto

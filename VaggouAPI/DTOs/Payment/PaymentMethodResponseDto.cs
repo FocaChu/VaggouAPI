@@ -1,7 +1,8 @@
 ﻿namespace VaggouAPI
 {
-    public class PaymentMethodDto
+    public class PaymentMethodResponseDto
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }

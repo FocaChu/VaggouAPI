@@ -14,108 +14,125 @@ namespace VaggouAPI
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Reservation>> GetAllAsync() =>
-            await IncludeAll().ToListAsync();
-
-        public async Task<Reservation?> GetByIdAsync(Guid id) =>
-            await IncludeAll().FirstOrDefaultAsync(r => r.Id == id)
-                ?? throw new NotFoundException("Reservation not found.");
-
-        public async Task<IEnumerable<Reservation>> GetByClientIdAsync(Guid clientId) =>
-            await IncludeAll()
-                .Where(r => r.ClientId == clientId)
-                .ToListAsync();
-
-        public async Task<IEnumerable<Reservation>> GetByMonthAsync(int year, int month)
+        public async Task<IEnumerable<Reservation>> GetMyReservationsAsync(Guid loggedInUserId)
         {
-            var startDate = new DateTime(year, month, 1);
-            var endDate = startDate.AddMonths(1);
-
-            return await IncludeAll()
-                .Where(p => p.Date >= startDate && p.Date < endDate)
+            return await _context.Reservations
+                .Where(r => r.ClientId == loggedInUserId)
+                .IncludeAllRelatedData()
+                .AsNoTracking()
+                .OrderByDescending(r => r.Date)
                 .ToListAsync();
         }
 
-        public async Task<Reservation> CreateAsync(ReservationDto dto)
+        public async Task<Reservation> GetMyReservationByIdAsync(Guid reservationId, Guid loggedInUserId)
         {
+            var reservation = await _context.Reservations
+                .IncludeAllRelatedData()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == reservationId)
+                    ?? throw new NotFoundException("Reservation not found.");
+
+            if (reservation.ClientId != loggedInUserId)
+                throw new UnauthorizedException("You do not have permission to view this reservation.");
+
+            return reservation;
+        }
+
+        public async Task<IEnumerable<Reservation>> GetForMyParkingLotAsync(Guid parkingLotId, Guid loggedInOwnerId)
+        {
+            var isOwner = await _context.ParkingLots.AnyAsync(pl => pl.Id == parkingLotId && pl.OwnerId == loggedInOwnerId);
+            if (!isOwner)
+            {
+                throw new UnauthorizedException("You do not have permission to view reservations for this parking lot.");
+            }
+
+            return await _context.Reservations
+                .Where(r => r.ParkingSpot.ParkingLotId == parkingLotId)
+                .IncludeAllRelatedData()
+                .AsNoTracking()
+                .OrderByDescending(r => r.Date)
+                .ToListAsync();
+        }
+
+        public async Task<Reservation> CreateAsync(CreateReservationRequestDto dto, Guid loggedInUserId)
+        {
+            var vehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.Id == dto.VehicleId && v.OwnerId == loggedInUserId)
+                ?? throw new BusinessException("Vehicle not found or does not belong to the user.");
+
+            var spot = await _context.ParkingSpots.FindAsync(dto.ParkingSpotId)
+                ?? throw new NotFoundException("Parking spot not found.");
+
             bool isOccupied = await _context.Reservations.AnyAsync(r =>
                 r.ParkingSpotId == dto.ParkingSpotId &&
                 r.Date.Date == dto.Date.Date &&
-                r.Status != Status.Cancelled && 
-                r.timeStart < dto.timeEnd &&    
-                r.timeEnd > dto.timeStart       
+                r.Status != Status.Cancelled && r.Status != Status.Failed &&
+                r.timeStart < dto.TimeEnd &&
+                r.timeEnd > dto.TimeStart
             );
-
             if (isOccupied)
-                throw new BusinessException("The parking spot is already reserved for the selected time..");
+                throw new BusinessException("The parking spot is already reserved for the selected time.");
 
-            var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new NotFoundException("Client not found.");
+            var paymentEntity = new Payment
+            {
+                Status = Status.Pending, 
+                Amount = 0, 
+            };
 
-            var vehicle = await _context.Vehicles.FindAsync(dto.VehicleId)
-                ?? throw new NotFoundException("Vehicle not found.");
+            var reservationEntity = _mapper.Map<Reservation>(dto);
+            reservationEntity.ClientId = loggedInUserId; 
+            reservationEntity.Status = Status.Pending; 
+            reservationEntity.Payment = paymentEntity;
 
-            var spot = await _context.ParkingSpots.FindAsync(dto.ParkingSpotId)
-                ?? throw new NotFoundException("Parking spot not found.");
-
-            var payment = await _context.Payments.FindAsync(dto.PaymentId)
-                ?? throw new NotFoundException("Payment not found.");
-
-            var created = _mapper.Map<Reservation>(dto);
-            created.Client = client;
-            created.Vehicle = vehicle;
-            created.ParkingSpot = spot;
-            created.Payment = payment;
-
-            await _context.Reservations.AddAsync(created);
+            await _context.Reservations.AddAsync(reservationEntity);
             await _context.SaveChangesAsync();
 
-            return created;
+            reservationEntity.Vehicle = vehicle;
+            reservationEntity.ParkingSpot = spot;
+
+            return reservationEntity;
         }
 
-        public async Task<Reservation?> UpdateAsync(ReservationDto dto, Guid id)
+        public async Task<Reservation> CancelAsync(Guid reservationId, Guid loggedInUserId)
         {
-            var updated = await _context.Reservations.FindAsync(id)
-                ?? throw new NotFoundException("Reservation not found.");
+            var reservation = await _context.Reservations
+                .Include(r => r.Payment)
+                .FirstOrDefaultAsync(r => r.Id == reservationId);
 
-            var client = await _context.Clients.FindAsync(dto.ClientId)
-                ?? throw new NotFoundException("Client not found.");
+            if (reservation == null)
+                throw new NotFoundException("Reservation not found.");
 
-            var vehicle = await _context.Vehicles.FindAsync(dto.VehicleId)
-                ?? throw new NotFoundException("Vehicle not found.");
+            if (reservation.ClientId != loggedInUserId)
+                throw new UnauthorizedException("You do not have permission to cancel this reservation.");
 
-            var spot = await _context.ParkingSpots.FindAsync(dto.ParkingSpotId)
-                ?? throw new NotFoundException("Parking spot not found.");
+            var now = DateTime.UtcNow;
+            var reservationStartDateTime = reservation.Date.Date + reservation.timeStart.ToTimeSpan();
+            if (now >= reservationStartDateTime.AddHours(-1))
+            {
+                throw new BusinessException("Reservations can only be cancelled up to 1 hour before the start time.");
+            }
 
-            var payment = await _context.Payments.FindAsync(dto.PaymentId)
-                ?? throw new NotFoundException("Payment not found.");
+            reservation.Status = Status.Cancelled;
 
-            _mapper.Map(dto, updated);
-            updated.Client = client;
-            updated.Vehicle = vehicle;
-            updated.ParkingSpot = spot;
-            updated.Payment = payment;
+            if (reservation.Payment != null)
+            {
+                reservation.Payment.Status = reservation.Payment.Status == Status.Success ? Status.Refunded : Status.Cancelled;
+            }
 
-            _context.Reservations.Update(updated);
             await _context.SaveChangesAsync();
-
-            return updated;
+            return reservation;
         }
 
-        public async Task DeleteAsync(Guid id)
+    }
+
+    public static class ReservationQueryExtensions
+    {
+        public static IQueryable<Reservation> IncludeAllRelatedData(this IQueryable<Reservation> query)
         {
-            var entity = await _context.Reservations.FindAsync(id)
-                ?? throw new NotFoundException("Reservation not found.");
-
-            _context.Reservations.Remove(entity);
-            await _context.SaveChangesAsync();
-        }
-
-        private IQueryable<Reservation> IncludeAll() =>
-            _context.Reservations
-                .Include(r => r.Client)
-                .Include(r => r.Vehicle)
+            return query
+                .Include(r => r.Client).ThenInclude(c => c.User)
+                .Include(r => r.Vehicle).ThenInclude(v => v.VehicleModel)
                 .Include(r => r.ParkingSpot)
-                .Include(r => r.Payment);
+                .Include(r => r.Payment).ThenInclude(p => p.PaymentMethod);
+        }
     }
 }

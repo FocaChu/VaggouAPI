@@ -4,6 +4,6 @@
     {
         public string Token { get; set; }
 
-        public ClientDto UserProfile { get; set; } 
+        public ClientProfileResponseDto UserProfile { get; set; } 
     }
 }

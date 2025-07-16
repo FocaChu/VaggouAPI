@@ -36,7 +36,7 @@ namespace VaggouAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddressDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateAddressRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -51,7 +51,7 @@ namespace VaggouAPI
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] AddressDto dto, Guid id)
+        public async Task<IActionResult> Update([FromBody] UpdateAddressRequestDto dto, Guid id)
         {
             if (!ModelState.IsValid)
             {
@@ -60,7 +60,7 @@ namespace VaggouAPI
             }
 
             _logger.LogInformation("Updating address ID: {Id}", id);
-            var updated = await _service.UpdateAsync(dto, id);
+            var updated = await _service.UpdateAsync(id, dto);
             _logger.LogInformation("Address updated. ID: {Id}", updated.Id);
             return Ok(updated);
         }

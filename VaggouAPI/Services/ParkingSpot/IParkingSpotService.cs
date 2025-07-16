@@ -2,16 +2,15 @@
 {
     public interface IParkingSpotService
     {
-        Task<IEnumerable<ParkingSpot>> GetAllAsync();
+        Task<IEnumerable<ParkingSpot>> GetForParkingLotAsync(Guid parkingLotId);
 
-        Task<ParkingSpot?> GetByIdAsync(Guid id);
+        Task<ParkingSpot> GetByIdAsync(Guid spotId); 
 
-        Task<IEnumerable<ParkingSpot>> GetByParkingLotIdAsync(Guid parkingLotId);
 
-        Task<ParkingSpot> CreateAsync(ParkingSpotDto dto);
+        Task<ParkingSpot> CreateAsync(Guid parkingLotId, CreateParkingSpotRequestDto dto, Guid loggedInUserId);
 
-        Task<ParkingSpot?> UpdateAsync(ParkingSpotDto dto, Guid Id);
+        Task<ParkingSpot> UpdateAsync(Guid spotId, UpdateParkingSpotRequestDto dto, Guid loggedInUserId);
 
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(Guid spotId, Guid loggedInUserId);
     }
 }

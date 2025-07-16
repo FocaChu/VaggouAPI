@@ -1,6 +1,6 @@
 ﻿namespace VaggouAPI
 {
-    public class RoleDto
+    public class CreateRoleRequestDto
     {
         public string Name { get; set; }
     }

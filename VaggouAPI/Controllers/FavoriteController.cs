@@ -15,36 +15,18 @@ namespace VaggouAPI
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            _logger.LogInformation("Listing all favorites.");
-            var result = await _service.GetAllAsync();
-            return Ok(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            _logger.LogInformation("Fetching favorite by ID: {Id}", id);
-
-            var result = await _service.GetByIdAsync(id);
-
-            return Ok(result);
-        }
-
         [HttpGet("client/{clientId}")]
         public async Task<IActionResult> GetByClientId(Guid clientId)
         {
             _logger.LogInformation("Fetching favorite by Client ID: {ClientId}", clientId);
 
-            var result = await _service.GetByClientIdAsync(clientId);
+            var result = await _service.GetMyFavoritesAsync(clientId);
 
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] FavoriteDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateFavoriteRequestDto dto, Guid clientId)
         {
             if (!ModelState.IsValid)
             {
@@ -53,31 +35,16 @@ namespace VaggouAPI
             }
 
             _logger.LogInformation("Creating new favorite parking lot.");
-            var created = await _service.CreateAsync(dto);
+            var created = await _service.CreateAsync(clientId, dto);
             _logger.LogInformation("Favorite parking lot created. ID: {Id}", created.Id);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] FavoriteDto dto, Guid id)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Erro de validação ao atualizar estacionamento favorito ID: {Id}", id);
-                return BadRequest(ModelState);
-            }
-
-            _logger.LogInformation("Updating favorite parking lot ID: {Id}", id);
-            var updated = await _service.UpdateAsync(dto, id);
-            _logger.LogInformation("Favorite parking lot updated. ID: {Id}", updated.Id);
-            return Ok(updated);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, Guid clientId)
         {
             _logger.LogInformation("Deleting favorite parking lot ID: {Id}", id);
-            await _service.DeleteAsync(id);
+            await _service.DeleteAsync(id, clientId);
             _logger.LogInformation("Address favorite parking lot. ID: {Id}", id);
             return NoContent();
         }
