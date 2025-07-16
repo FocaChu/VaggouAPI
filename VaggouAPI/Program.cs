@@ -13,14 +13,12 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped(typeof(IIAChatService), typeof(IAChatService));
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddCors(options =>
 {
@@ -32,13 +30,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddHttpClient();
-
 var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
 builder.Services.AddDbContext<Db>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -57,7 +51,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IClientService, ClientService>();
@@ -71,24 +65,9 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IUserService, UserService>(); 
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IVehicleModelService, VehicleModelService>();
-
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200") 
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -103,10 +82,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAngular");
+
 //app.UseMiddleware<AppExceptionMiddleware>();
 
 app.UseAuthentication();
-app.UseAuthorization();  
+app.UseAuthorization();
 
 app.MapControllers();
 
@@ -114,33 +94,30 @@ app.Run();
 
 async Task SeedDatabase(IHost app)
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    try
     {
-        var services = scope.ServiceProvider;
-        try
-        {
-            var context = services.GetRequiredService<Db>();
-            await context.Database.MigrateAsync();
+        var context = services.GetRequiredService<Db>();
+        await context.Database.MigrateAsync();
 
-            // Popula os papéis
-            if (!await context.Roles.AnyAsync())
-            {
-                await context.Roles.AddRangeAsync(
-                    new Role { Name = "Admin" },
-                    new Role { Name = "ParkingLotOwner" },
-                    new Role { Name = "Premium"},
-                    new Role { Name = "Consumer" }
-                );
-                await context.SaveChangesAsync();
-
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                logger.LogInformation("Database seeded with initial roles.");
-            }
-        }
-        catch (Exception ex)
+        if (!await context.Roles.AnyAsync())
         {
+            await context.Roles.AddRangeAsync(
+                new Role { Name = "Admin" },
+                new Role { Name = "ParkingLotOwner" },
+                new Role { Name = "Premium" },
+                new Role { Name = "Consumer" }
+            );
+            await context.SaveChangesAsync();
+
             var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred while seeding the database.");
+            logger.LogInformation("Database seeded with initial roles.");
         }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
     }
 }

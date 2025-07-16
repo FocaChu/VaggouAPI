@@ -101,7 +101,6 @@ namespace VaggouAPI
             var entity = await _context.ParkingLots.FindAsync(parkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
 
-            // **VERIFICAÇÃO DE PROPRIEDADE - A MAIS IMPORTANTE**
             if (entity.OwnerId != loggedInUserId)
             {
                 throw new UnauthorizedException("You do not have permission to modify this parking lot.");
@@ -124,7 +123,6 @@ namespace VaggouAPI
             var entity = await _context.ParkingLots.FindAsync(parkingLotId)
                 ?? throw new NotFoundException("Parking lot not found.");
 
-            // **VERIFICAÇÃO DE PROPRIEDADE**
             if (entity.OwnerId != loggedInUserId)
             {
                 throw new UnauthorizedException("You do not have permission to delete this parking lot.");

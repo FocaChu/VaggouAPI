@@ -13,7 +13,6 @@ namespace VaggouAPI
         public ImageType Type { get; set; }
 
         public Guid? ParkingLotId { get; set; }
-
         [JsonIgnore]
         public ParkingLot? ParkingLot { get; set; }
 
